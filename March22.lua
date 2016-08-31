@@ -10,13 +10,11 @@
 
 --Namespace
 March22 = {};
-March22.version = {0, 1, 0};															-- Major, minor, patch
+March22.version = {0, 2, 0};															-- Major, minor, patch
 print("Loading March22 v"..March22.version[1]..".".. March22.version[2] ..".".. March22.version[3]);
-
 
 dofile("app0:/LUA_CLASSES/Line.lua");
 dofile("app0:/LUA_CLASSES/Character.lua");
-
 dofile("app0:/scripts/script-a1-monday.lua");
 
 --CONSTANTS
@@ -87,7 +85,7 @@ end
 -- Changes line to specified number
 -- Does not check if line doesn't exist, so be careful
 function March22.ChangeLine(_number)
-	March22.CURRENTLINE = _number;
+  March22.CURRENTLINE = March22.CURRENTLINE+1;
 	March22.ACTIVECHARACTER_NAME = ACTIVE_SCRIPT[March22.CURRENTLINE].speaker;
 	March22.ACTIVESPEECH = ACTIVE_SCRIPT[March22.CURRENTLINE].content;
 	March22.ACTIVECHARACTER_COLOR = ACTIVE_SCRIPT[March22.CURRENTLINE].color;

@@ -1,3 +1,14 @@
+function UpdateLoadingProgress(_progress)
+  local LOADING_PROGRESS = _progress;
+  Graphics.initBlend();
+  Screen.clear();
+  
+  Graphics.debugPrint(960/2, 540/2, ""..LOADING_PROGRESS.."%",  Color.new(255,0,0));
+  
+  Graphics.termBlend();
+  Screen.flip()
+end
+
 dofile("app0:/March22.lua")
 System.setCpuSpeed(333);
 Sound.init();
@@ -7,6 +18,7 @@ deltaTime = 0;
 timeSinceStart = 0;
 oldTimeSinceStart = 0;
 timer=Timer.new();
+March22.NextLine();
 -- Main loop
 while true do
 	
