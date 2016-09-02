@@ -1,12 +1,8 @@
 
 
 March22.CHARACTERS = {};                                -- Table of characters and their sprites (see Character.lua)
-March22.CHARACTERS["shizune"] = Character.new("shizune", {"normal"});         -- How to initialize one called shizune with 1 emotion called normal
+--March22.CHARACTERS["shizune"] = Character.new("shizune", {"normal"});         -- How to initialize one called shizune with 1 emotion called normal
 
-
-March22.ACTIVECHARACTER_NAME = ACTIVE_SCRIPT[1].speaker;                -- The name of the current speaker, derived from the current script line
-March22.ACTIVESPEECH = ACTIVE_SCRIPT[1].content;                    -- The current dialogue/narrative
-March22.ACTIVECHARACTER_COLOR = ACTIVE_SCRIPT[1].color;                 -- Color of character's name
 
 
 -- Table of character sprites to draw on-screen and where
@@ -60,5 +56,14 @@ function March22.AddCharacterToActive(_x, _charname, _emotion)
         x = ( ( ( (960 / 2) / 2) + (960 / 2)) - (x / 2) );
     end
     
+    -- check if char already exists
+    for k in pairs(March22.ACTIVECHARACTERS) do
+      if March22.ACTIVECHARACTERS[k].name == _charname then
+          if _x == "blank" then
+              x = March22.ACTIVECHARACTERS[k].x;
+          end
+          March22.ACTIVECHARACTERS[k] = nil;
+      end
+    end
     table.insert(March22.ACTIVECHARACTERS, CharacterSprite.new ( x, y, _charname, _emotion));
 end

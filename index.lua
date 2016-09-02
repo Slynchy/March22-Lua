@@ -18,6 +18,7 @@ deltaTime = 0;
 timeSinceStart = 0;
 oldTimeSinceStart = 0;
 timer=Timer.new();
+March22.CURRENTLINE = (500 - 128);
 March22.NextLine();
 -- Main loop
 while true do

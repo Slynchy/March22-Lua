@@ -26,9 +26,12 @@ March22.WHITE_COLOUR = Color.new(255,255,255);
 dofile("app0:/LUA_CLASSES/Line.lua");
 dofile("app0:/LUA_CLASSES/Character.lua");
 LOADEDBACKGROUNDS = {};
-dofile("app0:/scripts/script-a1-monday.lua");
---LOADEDSFX and LOADEDBACKGROUNDS now usable
 dofile("app0:/March22_character.lua");
+dofile("app0:/scripts/script-a1-monday.lua");
+March22.ACTIVECHARACTER_NAME = ACTIVE_SCRIPT[1].speaker;                -- The name of the current speaker, derived from the current script line
+March22.ACTIVESPEECH = ACTIVE_SCRIPT[1].content;                    -- The current dialogue/narrative
+March22.ACTIVECHARACTER_COLOR = ACTIVE_SCRIPT[1].color;                 -- Color of character's name
+--LOADEDSFX and LOADEDBACKGROUNDS now usable
 dofile("app0:/March22_sound.lua");
 dofile("app0:/March22_background.lua");
 dofile("app0:/March22_script.lua");

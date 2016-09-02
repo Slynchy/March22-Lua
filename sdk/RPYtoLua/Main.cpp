@@ -6,7 +6,7 @@
 */
 
 #define VERSION_MAJOR 0
-#define VERSION_MINOR 3
+#define VERSION_MINOR 4
 #define VERSION_PATCH 0
 
 #include <string>
@@ -26,14 +26,26 @@ enum LUAFUNCTION {
 	NEW_CHARACTER
 };
 
+struct Character {
+	std::vector<std::wstring> sprites;
+	std::wstring name;
+	Character()
+	{
+		name = L"";
+	};
+};
+
 int LoadScriptIntoVector(const wchar_t* _input, std::vector<std::wstring>& _vector);
 std::vector<std::wstring> GetLoadedBackgroundsFromVector(std::vector<std::wstring>& _vector);
 std::vector<std::wstring> GetLoadedSFXFromVector(std::vector<std::wstring>& _vector);
 unsigned int SplitString(const std::wstring &txt, std::vector<std::wstring> &strs, char ch);
 std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector);
-void WriteCompiledScript(std::vector<std::wstring>& _backgrounds, std::vector<std::wstring>& _lines, std::vector<std::wstring>& _sfx);
+void WriteCompiledScript(std::vector<std::wstring>& _backgrounds, std::vector<std::wstring>& _lines, std::vector<std::wstring>& _sfx, std::vector<Character>& _characters);
 int LoadTXTIntoVector(const char* _file, std::vector<std::wstring>& _vector);
-std::wstring CreateLuaFunction(LUAFUNCTION _function, std::wstring _param, bool _newline = false, bool _prefixsuffix = false);
+std::wstring CreateLuaFunction(LUAFUNCTION _function, std::wstring _param, bool _newline = false, bool _prefixsuffix = false, std::wstring _param2 = L"", std::wstring _param3 = L"");
+std::vector<Character> GetLoadedCharactersFromVector(std::vector<std::wstring>& _vector);
+
+bool isCharacter(std::wstring _name);
 
 std::vector<std::wstring> CHARACTER_NAMES;
 std::vector<std::wstring> CHARACTER_NAMES_FIXED;
@@ -42,6 +54,7 @@ int main(void)
 {
 	std::vector<std::wstring> SCRIPT;
 	std::vector<std::wstring> BACKGROUNDS;
+	std::vector<Character> CHARACTERS;
 	std::vector<std::wstring> SFX;
 	std::vector<std::wstring> LINES;
 
@@ -50,12 +63,13 @@ int main(void)
 
 	LoadScriptIntoVector(L"./test.rpy", SCRIPT);
 	
+	CHARACTERS = GetLoadedCharactersFromVector(SCRIPT);
 	BACKGROUNDS =  GetLoadedBackgroundsFromVector(SCRIPT);
 	SFX = GetLoadedSFXFromVector(SCRIPT);
 	LINES = GetLinesFromVector(SCRIPT);
 
 
-	WriteCompiledScript(BACKGROUNDS, LINES, SFX);
+	WriteCompiledScript(BACKGROUNDS, LINES, SFX, CHARACTERS);
 	printf("\nsuccesful!");
 
 	return 0;
@@ -81,9 +95,37 @@ int LoadTXTIntoVector(const char* _file, std::vector<std::wstring>& _vector)
 	return 0;
 };
 
-void WriteCompiledScript(std::vector<std::wstring>& _backgrounds, std::vector<std::wstring>& _lines, std::vector<std::wstring>& _sfx)
+std::wstring GenerateCharacterArray(Character& _char)
 {
-	std::wofstream textOutput("./test.lua");
+	//March22.CHARACTERS["shizune"] = Character.new("shizune", {"normal"}); 
+	std::wstring result = L"March22.CHARACTERS[\"";
+	result += _char.name;
+	result += L"\"] = Character.new(\"";
+	result += _char.name;
+	result += L"\", {\n";
+
+	for (size_t i = 0; i < _char.sprites.size(); i++)
+	{
+		result += L"	\"";
+		std::wstring temp = _char.sprites.at(i);
+		temp.erase(std::remove(temp.begin(), temp.end(), ':'), temp.end());
+		result += temp;
+		result += L"\"";
+
+		// if not the last emotion
+		if ( !(i == (_char.sprites.size() - 1) ) )
+		{
+			result += L",\n";
+		}
+	}
+	result += L"});\n\n";
+
+	return result;
+}
+
+void WriteCompiledScript(std::vector<std::wstring>& _backgrounds, std::vector<std::wstring>& _lines, std::vector<std::wstring>& _sfx, std::vector<Character>& _characters)
+{
+	std::wofstream textOutput("./script-a1-monday.lua");
 	//textOutput.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t, 0x10ffff, std::generate_header>));
 	textOutput.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t, 0x10ffff>));
 	//textOutput.imbue(std::locale("en_USutf8"));
@@ -94,18 +136,24 @@ void WriteCompiledScript(std::vector<std::wstring>& _backgrounds, std::vector<st
 	textOutput /*<< L"LOADEDBACKGROUNDS = {};" */ << "\nLOADEDSFX = {};\n\n";
 
 	float percentage = 0.0f;
+	for (size_t i = 0; i < _characters.size(); i++)
+	{
+		percentage = ((((float)i / (float)_characters.size()) * (float)20));
+		textOutput << L"UpdateLoadingProgress(" << (int)percentage << L");\n";
+		textOutput << GenerateCharacterArray(_characters.at(i));
+	}
 
 	for (size_t i = 0; i < _backgrounds.size(); i++)
 	{
+		percentage = ((((float)i / (float)_backgrounds.size()) * (float)40) + 20);
+		textOutput << L"UpdateLoadingProgress(" << (int)percentage << L");\n";
 		textOutput << _backgrounds.at(i);
-		percentage = (((float)i / (float)_backgrounds.size()) * (float)40);
-		textOutput << L"UpdateLoadingProgress(" << percentage << L");\n";
 	}
 	for (size_t i = 0; i < _sfx.size(); i++)
 	{
+		percentage = ((((float)i / (float)_sfx.size()) * (float)40) + 60);
+		textOutput << L"UpdateLoadingProgress(" << (int)percentage << L");\n";
 		textOutput << _sfx.at(i);
-		percentage = ((((float)i / (float)_sfx.size()) * (float)40) + 40);
-		textOutput << L"UpdateLoadingProgress(" << percentage << L");\n";
 	}
 
 	textOutput << "\nACTIVE_SCRIPT = {\n";
@@ -126,7 +174,7 @@ void WriteCompiledScript(std::vector<std::wstring>& _backgrounds, std::vector<st
 	return;
 }
 
-std::wstring CreateLuaFunction(LUAFUNCTION _function, std::wstring _param, bool _newline, bool _prefixsuffix)
+std::wstring CreateLuaFunction(LUAFUNCTION _function, std::wstring _param, bool _newline, bool _prefixsuffix, std::wstring _param2, std::wstring _param3)
 {
 	std::wstring result = L"";
 	if (_prefixsuffix)
@@ -143,10 +191,17 @@ std::wstring CreateLuaFunction(LUAFUNCTION _function, std::wstring _param, bool 
 			result += std::wstring(L"March22.ACTIVEBACKGROUND = LOADEDBACKGROUNDS[\"" + _param + L"\"];");
 			break;
 		case CLEAR_CHARACTER:
-			result += std::wstring(L"March22.ACTIVEBACKGROUND = LOADEDBACKGROUNDS[\"" + _param + L"\"];");
+			result += std::wstring(L"March22.ClearCharacter(\""+ _param + L"\");");
 			break;
 		case NEW_CHARACTER:
-			result += std::wstring(L"March22.ACTIVEBACKGROUND = LOADEDBACKGROUNDS[\"" + _param + L"\"];");
+			if (_param3 != L"")
+			{
+				result += std::wstring(L"March22.AddCharacterToActive(\"" + _param3 + L"\", \"" + _param + L"\", \"" + _param2 + L"\");");
+			}
+			else
+			{
+				result += std::wstring(L"March22.AddCharacterToActive(\"blank\", \"" + _param + L"\", \"" + _param2 + L"\");");
+			}
 			break;
 		case CHANGELINE:
 			result += L"March22.NextLine(); ";
@@ -166,13 +221,25 @@ std::wstring CreateLuaFunction(LUAFUNCTION _function, std::wstring _param, bool 
 	return result;
 };
 
+bool isCharacter(std::wstring _name)
+{
+	for (size_t i = 0; i < CHARACTER_NAMES.size(); i++)
+	{
+		if (CHARACTER_NAMES.at(i) == _name)
+		{
+			return true;
+		};
+	}
+	return false;
+};
+
 std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector)
 {
 	//Line.new("", Color.new(255, 255, 255), "A light breeze causes the naked branches overhead to rattle like wooden windchimes."),
 	std::wstring COLOR = L"March22.WHITE_COLOUR, ";
 	std::vector<std::wstring> result;
 
-	enum TYPE {UNKNOWN, PLAYSOUND, PLAYMUSIC, CHANGEBACKGROUND, SPEECH, NARRATIVE};
+	enum TYPE {UNKNOWN, PLAYSOUND, PLAYMUSIC, CHANGEBACKGROUND, ADDSPRITE, CLEARSPRITE, SPEECH, NARRATIVE};
 
 	for (size_t i = 0; i < _vector.size(); i++)
 	{
@@ -180,7 +247,7 @@ std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector)
 		std::vector<std::wstring> splitString;
 		SplitString(_vector.at(i), splitString, ' ');
 		std::wstring tempStr = L"Line.new(";
-		if (_vector.at(i).at(0) == L'\"') // narrative
+		if (splitString.at(0).size() > 0 && splitString.at(0).at(0) == L'\"') // narrative
 		{
 			size_t n = std::count(_vector.at(i).begin(), _vector.at(i).end(), '\"');
 			if (n > 2)
@@ -207,6 +274,14 @@ std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector)
 				{
 					type = PLAYMUSIC;
 				}
+			}
+			else if (splitString.at(0) == L"show")
+			{
+				type = ADDSPRITE;
+			}
+			else if (splitString.at(0) == L"hide")
+			{
+				type = CLEARSPRITE;
 			}
 			else if (splitString.at(0) == L"scene")
 			{
@@ -242,6 +317,7 @@ std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector)
 		{
 			tempStr += L"\"\"";
 		}
+
 		if (type == PLAYSOUND)
 		{
 			tempStr += L", ";
@@ -261,15 +337,41 @@ std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector)
 			}
 			tempStr += L"),\n";
 		}
-		else if(type == TYPE::NARRATIVE)
+		else if(type == TYPE::ADDSPRITE)
 		{
-			//tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::CHANGELINE, L"", true, true) + L"),\n");
-			tempStr += (L"),\n");
+			//splitString.at(1)
+			// show muto normal at center
+			if (isCharacter(splitString.at(1)))
+			{
+				if (splitString.size() > 3 && splitString.at(3) == L"at")
+				{
+					tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::NEW_CHARACTER, splitString.at(1), true, true, splitString.at(2), splitString.at(4)) + L"),\n");
+				}
+				else
+				{
+					tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::NEW_CHARACTER, splitString.at(1), true, true, splitString.at(2)) + L"),\n");
+				}
+			}
+			else
+			{
+				tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::CHANGELINE, L"", true, true) + L"),\n");
+			}
 		}
-		else if (type == TYPE::SPEECH)
+		else if (type == TYPE::CLEARSPRITE)
 		{
-			//tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::CHANGELINE, L"", true, true) + L"),\n");
-			tempStr += (L"),\n");
+			if (isCharacter(splitString.at(1)))
+			{
+				tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::CLEAR_CHARACTER, splitString.at(1), true, true) + L"),\n");
+			}
+			else
+			{
+				tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::CHANGELINE, L"", true, true) + L"),\n");
+			}
+		}
+		else if (type == TYPE::SPEECH || type == TYPE::NARRATIVE)
+		{
+			//nothing
+			tempStr += L"),\n";
 		}
 		else
 		{
@@ -280,6 +382,68 @@ std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector)
 	return result;
 }
 
+std::vector<Character> GetLoadedCharactersFromVector(std::vector<std::wstring>& _vector)
+{
+	std::vector<Character> result;
+
+	for (size_t i = 0; i < _vector.size(); i++)
+	{
+		//show muto smile
+		std::vector<std::wstring> splitString;
+		SplitString(_vector.at(i), splitString, ' ');
+
+		bool characterExists = false;
+		bool emoteExists = false;
+
+		if (splitString.at(0) == L"show")
+		{
+			// check if character name
+			if ( isCharacter(splitString.at(1) ) )
+			{
+				for (size_t res = 0; res < result.size(); res++)
+				{
+					// if name already exists
+					if (result.at(res).name == splitString.at(1))
+					{
+						characterExists = true;
+						// check if emotion already exists
+						for (size_t emo = 0; emo < result.at(res).sprites.size(); emo++)
+						{
+							if (result.at(res).sprites.at(emo) == splitString.at(2))
+							{
+								// emotion + character already exists, break it
+								emoteExists = true;
+								break;
+							}
+						}
+
+						// emotion doesn't exist!
+						if (emoteExists == false)
+						{
+							result.at(res).sprites.push_back(splitString.at(2));
+							emoteExists = true;
+						};
+						// emotion doesn't exist!
+
+						if (characterExists) break;
+					}
+				}
+				// character doesn't exist!
+				if (characterExists == false)
+				{
+					Character newChar;
+					newChar.name = splitString.at(1);
+					newChar.sprites.push_back(splitString.at(2));
+					result.push_back(newChar);
+				};
+				// character doesn't exist!
+			}
+		}
+	};
+
+	return result;
+};
+
 std::vector<std::wstring> GetLoadedSFXFromVector(std::vector<std::wstring>& _vector)
 {
 	std::vector<std::wstring> result;
@@ -287,36 +451,43 @@ std::vector<std::wstring> GetLoadedSFXFromVector(std::vector<std::wstring>& _vec
 
 	for (size_t i = 0; i < _vector.size(); i++)
 	{
-		std::wstring isScene = _vector.at(i).substr(0, 4);
-		if (isScene == L"play")
+		if (_vector.at(i).size() < 4)
 		{
-			std::vector<std::wstring> splitStr;
-			SplitString(_vector.at(i), splitStr, ' ');
-			std::wstring sfxEntry = L"";
-
-			// March22 handles events and backgrounds the same way
-			if (splitStr.at(1) == L"sound")
+			//do nothing
+		}
+		else
+		{
+			std::wstring isScene = _vector.at(i).substr(0, 4);
+			if (isScene == L"play")
 			{
-				bool alreadyLoaded = false;
-				for (size_t ch = 0; ch < loadedSFXTemp.size(); ch++)
+				std::vector<std::wstring> splitStr;
+				SplitString(_vector.at(i), splitStr, ' ');
+				std::wstring sfxEntry = L"";
+
+				// March22 handles events and backgrounds the same way
+				if (splitStr.at(1) == L"sound")
 				{
-					if (loadedSFXTemp.at(ch) == splitStr.at(2))
+					bool alreadyLoaded = false;
+					for (size_t ch = 0; ch < loadedSFXTemp.size(); ch++)
 					{
-						alreadyLoaded = true;
-						break;
+						if (loadedSFXTemp.at(ch) == splitStr.at(2))
+						{
+							alreadyLoaded = true;
+							break;
+						};
+					}
+					if (!alreadyLoaded)
+					{
+						sfxEntry += L"LOADEDSFX[\"";
+						sfxEntry += splitStr.at(2);
+						sfxEntry += L"\"] = Sound.openOgg(\"app0:/sfx/";
+						sfxEntry += splitStr.at(2);
+						sfxEntry += L".ogg\");\n";
+						result.push_back(sfxEntry);
+						loadedSFXTemp.push_back(splitStr.at(2));
 					};
 				}
-				if (!alreadyLoaded)
-				{
-					sfxEntry += L"LOADEDSFX[\"";
-					sfxEntry += splitStr.at(2);
-					sfxEntry += L"\"] = Sound.openOgg(\"app0:/sfx/";
-					sfxEntry += splitStr.at(2);
-					sfxEntry += L".ogg\");\n";
-					result.push_back(sfxEntry);
-					loadedSFXTemp.push_back(splitStr.at(2));
-				};
-			}
+			};
 		};
 	}
 

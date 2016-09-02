@@ -1,6 +1,13 @@
 #March22-Lua Changelog
 ##NOTE: I hardly ever remember what I add per version, so it may be inaccurate
 
+#### v0.3.5
+- Added per-script loading of character sprites to RPYtoLua
+	* And subsequent drawing/clearing to March22-Lua
+	* Garbage cleanup was already in place? Need to verify.
+- Improved new-script loading to be more stable
+- Probably some other stuff; I forget
+
 #### v0.3.0
 - Added ability to load new scripts
 - Improved RPYtoLua stability
