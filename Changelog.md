@@ -1,6 +1,15 @@
 #March22-Lua Changelog
 ##NOTE: I hardly ever remember what I add per version, so it may be inaccurate
 
+#### v0.3.0
+- Added ability to load new scripts
+- Improved RPYtoLua stability
+- Added garbage cleanup to loading new script (unloads graphics/sounds from [V]RAM)
+- Added function to add characters to screen
+	* Uses "twoleft", "offscreenleft" and "center" for positioning
+	* This needs to be added to RPYtoLua though
+	* Also needs animation
+
 #### v0.2.0
 - Improved script loading
 - Added a loading bar function

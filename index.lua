@@ -12,7 +12,7 @@ end
 dofile("app0:/March22.lua")
 System.setCpuSpeed(333);
 Sound.init();
-Sound.play(March22.ACTIVEMUSICTRACK,LOOP);
+--Sound.play(March22.ACTIVEMUSICTRACK,LOOP);
 
 deltaTime = 0;
 timeSinceStart = 0;
