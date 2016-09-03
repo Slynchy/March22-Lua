@@ -1,6 +1,12 @@
 #March22-Lua Changelog
 ##NOTE: I hardly ever remember what I add per version, so it may be inaccurate
 
+#### v0.4.0
+- Added fadein/out for drawcharacter and clearcharacter
+- Added typewriter effect
+	* Breaks unicode characters
+- Improved stability of RPYtoLua when it comes to animations
+
 #### v0.3.5
 - Added per-script loading of character sprites to RPYtoLua
 	* And subsequent drawing/clearing to March22-Lua

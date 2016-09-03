@@ -42,7 +42,7 @@ unsigned int SplitString(const std::wstring &txt, std::vector<std::wstring> &str
 std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector);
 void WriteCompiledScript(std::vector<std::wstring>& _backgrounds, std::vector<std::wstring>& _lines, std::vector<std::wstring>& _sfx, std::vector<Character>& _characters);
 int LoadTXTIntoVector(const char* _file, std::vector<std::wstring>& _vector);
-std::wstring CreateLuaFunction(LUAFUNCTION _function, std::wstring _param, bool _newline = false, bool _prefixsuffix = false, std::wstring _param2 = L"", std::wstring _param3 = L"");
+std::wstring CreateLuaFunction(LUAFUNCTION _function, std::wstring _param, bool _newline = false, bool _prefixsuffix = false, std::wstring _param2 = L"", std::wstring _param3 = L"", std::wstring _param4 = L"", std::wstring _param5 = L"");
 std::vector<Character> GetLoadedCharactersFromVector(std::vector<std::wstring>& _vector);
 
 bool isCharacter(std::wstring _name);
@@ -174,7 +174,7 @@ void WriteCompiledScript(std::vector<std::wstring>& _backgrounds, std::vector<st
 	return;
 }
 
-std::wstring CreateLuaFunction(LUAFUNCTION _function, std::wstring _param, bool _newline, bool _prefixsuffix, std::wstring _param2, std::wstring _param3)
+std::wstring CreateLuaFunction(LUAFUNCTION _function, std::wstring _param, bool _newline, bool _prefixsuffix, std::wstring _param2, std::wstring _param3, std::wstring _param4, std::wstring _param5)
 {
 	std::wstring result = L"";
 	if (_prefixsuffix)
@@ -194,13 +194,24 @@ std::wstring CreateLuaFunction(LUAFUNCTION _function, std::wstring _param, bool 
 			result += std::wstring(L"March22.ClearCharacter(\""+ _param + L"\");");
 			break;
 		case NEW_CHARACTER:
-			if (_param3 != L"")
-			{
-				result += std::wstring(L"March22.AddCharacterToActive(\"" + _param3 + L"\", \"" + _param + L"\", \"" + _param2 + L"\");");
+			if (_param3 != L"" && _param3 != L"charachange")
+			{// param3 = position, param = name, param2 = emotion
+				//March22.AddCharacterToActive(_x, _charname, _emotion, _anim, _animfunc, _speed)
+				if (_param4 != L"")
+				{
+					result += std::wstring(L"March22.AddCharacterToActive(\"" + _param3 + L"\", \"" + _param + L"\", \"" + _param2 + L"\", \"" + _param4 + L"\", function() March22.NextLine(); end, 0.05);");
+				}
+				else
+				{
+					std::wstring temp = _param2;
+					temp.erase(std::remove(temp.begin(), temp.end(), ':'), temp.end());
+					result += std::wstring(L"March22.AddCharacterToActive(\"" + _param3 + L"\", \"" + _param + L"\", \"" + temp + L"\");");
+				}
 			}
 			else
 			{
-				result += std::wstring(L"March22.AddCharacterToActive(\"blank\", \"" + _param + L"\", \"" + _param2 + L"\");");
+				result += std::wstring(L"March22.AddCharacterToActive(\"None\", \"" + _param + L"\", \"" + _param2 + L"\");");
+				_newline = true;
 			}
 			break;
 		case CHANGELINE:
@@ -232,6 +243,28 @@ bool isCharacter(std::wstring _name)
 	}
 	return false;
 };
+
+std::wstring CheckForAnimation(std::vector<std::wstring>& _vector, size_t _pos)
+{
+	bool exit = false;
+	int pos = _pos;
+	while (exit == false || pos < (_pos+8))
+	{
+		pos++;
+		if (pos < _vector.size())
+		{
+			std::vector<std::wstring> splitString;
+			SplitString(_vector.at(pos), splitString, ' ');
+			if (splitString.at(0) == L"with")
+			{
+				// found anim
+				return splitString.at(1);
+			}
+		};
+	}
+	
+	return L"";
+}
 
 std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector)
 {
@@ -343,14 +376,38 @@ std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector)
 			// show muto normal at center
 			if (isCharacter(splitString.at(1)))
 			{
-				if (splitString.size() > 3 && splitString.at(3) == L"at")
+				std::wstring animation = CheckForAnimation(_vector, i);
+				if (animation == L"")
 				{
-					tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::NEW_CHARACTER, splitString.at(1), true, true, splitString.at(2), splitString.at(4)) + L"),\n");
+					if (splitString.size() > 3 && splitString.at(3) == L"at")
+					{
+						tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::NEW_CHARACTER, splitString.at(1), true, true, splitString.at(2), splitString.at(4)));
+					}
+					else
+					{
+						tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::NEW_CHARACTER, splitString.at(1), true, true, splitString.at(2)));
+					}
 				}
 				else
 				{
-					tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::NEW_CHARACTER, splitString.at(1), true, true, splitString.at(2)) + L"),\n");
+					if (splitString.size() > 3 && splitString.at(3) == L"at")
+					{
+						tempStr += (L", " + CreateLuaFunction(
+							LUAFUNCTION::NEW_CHARACTER, 
+							splitString.at(1), 
+							false, 
+							true, 
+							splitString.at(2), 
+							splitString.at(4),
+							animation
+						));
+					}
+					else
+					{
+						tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::NEW_CHARACTER, splitString.at(1), false, true, splitString.at(2),animation));
+					}
 				}
+				tempStr += L"),\n";
 			}
 			else
 			{

@@ -18,7 +18,8 @@ deltaTime = 0;
 timeSinceStart = 0;
 oldTimeSinceStart = 0;
 timer=Timer.new();
-March22.CURRENTLINE = (500 - 128);
+--March22.CURRENTLINE = (500 - 100);
+March22.CURRENTLINE = 1;
 March22.NextLine();
 -- Main loop
 while true do
@@ -31,7 +32,7 @@ while true do
 	timeSinceStart = Timer.getTime(timer);
 	deltaTime = timeSinceStart - oldTimeSinceStart;
 	oldTimeSinceStart = timeSinceStart;
-	Graphics.debugPrint(5, 5,(1000/deltaTime).."ms",  Color.new(255,0,0),2);
+	Graphics.debugPrint(5, 5,(1000/deltaTime).."ms",  Color.new(255,0,0),1);
 	
 	Graphics.termBlend();
 	
@@ -39,6 +40,7 @@ while true do
 	March22.UpdatePad();
 	if March22.BUTTON_X_PRESSED == 1 then
 		March22.ChangeLine(March22.CURRENTLINE + 1);
+		March22.TypeWriterFrame = 0;
 	end
 	if March22.BUTTON_TRIANGLE_PRESSED == 1 then
 		System.exit()

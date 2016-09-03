@@ -10,7 +10,7 @@
 
 --Namespace
 March22 = {};
-March22.version = {0, 3, 0};															-- Major, minor, patch
+March22.version = {0, 3, 5};															-- Major, minor, patch
 print("Loading March22 v"..March22.version[1]..".".. March22.version[2] ..".".. March22.version[3]);
 
 --CONSTANTS
@@ -22,12 +22,14 @@ March22.FONT_BOLD        = Font.load("app0:/graphics/font_bold.ttf");         --
 Font.setPixelSizes(March22.FONT_BOLD, FONTSIZE);
 Font.setPixelSizes(March22.FONT   , FONTSIZE);
 March22.WHITE_COLOUR = Color.new(255,255,255);
+March22.DRAW_TEXTBOX = true;
 
 dofile("app0:/LUA_CLASSES/Line.lua");
 dofile("app0:/LUA_CLASSES/Character.lua");
 LOADEDBACKGROUNDS = {};
 dofile("app0:/March22_character.lua");
 dofile("app0:/scripts/script-a1-monday.lua");
+--dofile("app0:/scripts/testAnim.lua");
 March22.ACTIVECHARACTER_NAME = ACTIVE_SCRIPT[1].speaker;                -- The name of the current speaker, derived from the current script line
 March22.ACTIVESPEECH = ACTIVE_SCRIPT[1].content;                    -- The current dialogue/narrative
 March22.ACTIVECHARACTER_COLOR = ACTIVE_SCRIPT[1].color;                 -- Color of character's name
@@ -46,17 +48,23 @@ function March22.Render()
   else
     Graphics.drawImage(0, 0, March22.ACTIVEBACKGROUND);
   end
+  
 	
 	for k in pairs(March22.ACTIVECHARACTERS) do
+    March22.ACTIVECHARACTERS[k].Update();
 		Graphics.drawImage(
 			March22.ACTIVECHARACTERS[k].x,
 			March22.ACTIVECHARACTERS[k].y,
-			March22.CHARACTERS[March22.ACTIVECHARACTERS[k].name].sprites[March22.ACTIVECHARACTERS[k].emotion]
+			March22.CHARACTERS[March22.ACTIVECHARACTERS[k].name].sprites[March22.ACTIVECHARACTERS[k].emotion],
+      March22.ACTIVECHARACTERS[k].color
 		);
 	end
 	
-	Graphics.drawImage(0, 0, March22.TEXTBOX);
+	if March22.DRAW_TEXTBOX == true then
+	 Graphics.drawImage(0, 0, March22.TEXTBOX);
+	end
+	
 	Font.print(March22.FONT_BOLD, 18, 370, March22.ACTIVECHARACTER_NAME, March22.ACTIVECHARACTER_COLOR);
-	March22.DrawWrappedText(March22.FONT, 42, 424, March22.ACTIVESPEECH, Color.new(255, 255, 255))
+	March22.DrawTypeWriterEffect(March22.FONT, 42, 424, March22.ACTIVESPEECH, Color.new(255, 255, 255))
 	
 end

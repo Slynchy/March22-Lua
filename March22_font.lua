@@ -1,4 +1,5 @@
 
+March22.TypeWriterFrame = 0.0;
 
 -- Writes wrapped text according to maxChar variable
 function March22.DrawWrappedText(_font, _x, _y, _text, _color)
@@ -81,3 +82,19 @@ function March22.DrawWrappedText(_font, _x, _y, _text, _color)
   end
 
 end
+
+function March22.DrawTypeWriterEffect(_font, _x, _y, _text, _color)
+  March22.TypeWriterFrame = March22.TypeWriterFrame + 0.5;
+  tempint = string.len(_text);
+  tempText = "";
+  if March22.TypeWriterFrame >= tempint then
+    March22.TypeWriterFrame = tempint;
+    tempText = _text;
+  else
+    tempText = string.sub(_text, 0, math.ceil(March22.TypeWriterFrame));
+  end
+  
+  March22.DrawWrappedText(_font, _x, _y, tempText, _color);
+end
+
+
