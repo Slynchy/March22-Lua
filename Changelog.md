@@ -1,6 +1,10 @@
 #March22-Lua Changelog
 ##NOTE: I hardly ever remember what I add per version, so it may be inaccurate
 
+#### v0.5.0
+- Fixed every bug listed on the first binary release
+	* Refer to that buglist; it pretty much is the changelog for this version
+
 #### v0.4.0
 - Added fadein/out for drawcharacter and clearcharacter
 - Added typewriter effect

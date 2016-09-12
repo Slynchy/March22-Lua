@@ -123,6 +123,7 @@ function CharacterSprite.new (_x, _y, _name, _emotion, _anim, _speed, _animfunc)
           --charspriteobj.frame = charspriteobj.frame + 1.0; 
           charspriteobj.frame = math.ceil(lerp(charspriteobj.frame, 255, charspriteobj.speed));
           charspriteobj.color = Color.new(255,255,255,charspriteobj.frame);
+		  March22.DRAW_TEXTBOX = false;
         end
         
         if charspriteobj.frame >= 255 then
@@ -130,6 +131,7 @@ function CharacterSprite.new (_x, _y, _name, _emotion, _anim, _speed, _animfunc)
           if charspriteobj.complete == false then
             charspriteobj.animfunc();
             charspriteobj.complete = true;
+			March22.DRAW_TEXTBOX = true;
           end
           
         end

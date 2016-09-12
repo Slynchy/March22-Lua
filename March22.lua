@@ -10,19 +10,25 @@
 
 --Namespace
 March22 = {};
-March22.version = {0, 3, 5};															-- Major, minor, patch
+March22.version = {0, 5, 0};															-- Major, minor, patch
 print("Loading March22 v"..March22.version[1]..".".. March22.version[2] ..".".. March22.version[3]);
 
 --CONSTANTS
 maxChar = 88;                                       -- Max number of characters to a line of text
 FONTSIZE = 25;                                      -- Size of text fonts
 March22.TEXTBOX = Graphics.loadImage("app0:/graphics/textbox.png");           -- Textbox graphic (doesn't change so constant)
+March22.TEXTBOX_NARRATIVE = Graphics.loadImage("app0:/graphics/textbox_narrative.png");           -- Textbox graphic (doesn't change so constant)
 March22.FONT             = Font.load("app0:/graphics/font.ttf");            -- Same with the fonts
-March22.FONT_BOLD        = Font.load("app0:/graphics/font_bold.ttf");         -- ^^^
+March22.FONT_BOLD        = Font.load("app0:/graphics/font_bold.ttf");         -- ^^^ unused at the moment tho
 Font.setPixelSizes(March22.FONT_BOLD, FONTSIZE);
 Font.setPixelSizes(March22.FONT   , FONTSIZE);
 March22.WHITE_COLOUR = Color.new(255,255,255);
 March22.DRAW_TEXTBOX = true;
+
+-- Main menu first
+dofile("app0:/March22_sound.lua");
+dofile("app0:/March22_controls.lua");
+dofile("app0:/March22_mainmenu.lua");
 
 dofile("app0:/LUA_CLASSES/Line.lua");
 dofile("app0:/LUA_CLASSES/Character.lua");
@@ -30,14 +36,14 @@ LOADEDBACKGROUNDS = {};
 dofile("app0:/March22_character.lua");
 dofile("app0:/scripts/script-a1-monday.lua");
 --dofile("app0:/scripts/testAnim.lua");
+
 March22.ACTIVECHARACTER_NAME = ACTIVE_SCRIPT[1].speaker;                -- The name of the current speaker, derived from the current script line
 March22.ACTIVESPEECH = ACTIVE_SCRIPT[1].content;                    -- The current dialogue/narrative
 March22.ACTIVECHARACTER_COLOR = ACTIVE_SCRIPT[1].color;                 -- Color of character's name
+
 --LOADEDSFX and LOADEDBACKGROUNDS now usable
-dofile("app0:/March22_sound.lua");
 dofile("app0:/March22_background.lua");
 dofile("app0:/March22_script.lua");
-dofile("app0:/March22_controls.lua");
 dofile("app0:/March22_font.lua");
 March22.ACTIVEBACKGROUND = LOADEDBACKGROUNDS["op_snowywoods"];
 -- Render current frame
@@ -61,7 +67,11 @@ function March22.Render()
 	end
 	
 	if March22.DRAW_TEXTBOX == true then
-	 Graphics.drawImage(0, 0, March22.TEXTBOX);
+		if March22.ACTIVECHARACTER_NAME == "" then
+			Graphics.drawImage(0, 0, March22.TEXTBOX_NARRATIVE);
+		else
+			Graphics.drawImage(0, 0, March22.TEXTBOX);
+		end
 	end
 	
 	Font.print(March22.FONT_BOLD, 18, 370, March22.ACTIVECHARACTER_NAME, March22.ACTIVECHARACTER_COLOR);

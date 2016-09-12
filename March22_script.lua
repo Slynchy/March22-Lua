@@ -11,12 +11,17 @@ end
 -- Changes line to specified number
 -- Does not check if line doesn't exist, so be careful
 function March22.ChangeLine(_number)
-  March22.CURRENTLINE = March22.CURRENTLINE+1;
-  March22.ACTIVECHARACTER_NAME = ACTIVE_SCRIPT[March22.CURRENTLINE].speaker;
-  March22.ACTIVESPEECH = ACTIVE_SCRIPT[March22.CURRENTLINE].content;
-  March22.ACTIVECHARACTER_COLOR = ACTIVE_SCRIPT[March22.CURRENTLINE].color;
-  
-  ACTIVE_SCRIPT[March22.CURRENTLINE].func();
+  if March22.CURRENTLINE >= SIZE_OF_ACTIVE_SCRIPT then
+	-- do nothing; EOF
+  else
+
+    March22.CURRENTLINE = March22.CURRENTLINE+1;
+    March22.ACTIVECHARACTER_NAME = ACTIVE_SCRIPT[March22.CURRENTLINE].speaker;
+    March22.ACTIVESPEECH = ACTIVE_SCRIPT[March22.CURRENTLINE].content;
+    March22.ACTIVECHARACTER_COLOR = ACTIVE_SCRIPT[March22.CURRENTLINE].color;
+
+    ACTIVE_SCRIPT[March22.CURRENTLINE].func();
+  end
 end
 
 function March22.UnloadLoadedAssets()
@@ -27,13 +32,13 @@ function March22.UnloadLoadedAssets()
     LOADEDBACKGROUNDS[k] = nil;
   end
   March22.ACTIVEBACKGROUND = nil;
-  
+
   --Unload SFX
   for k in pairs(LOADEDSFX) do
     Sound.close(LOADEDSFX[k]);
     LOADEDSFX[k] = nil;
   end
-  
+
   --Unload characters
   for k in pairs(March22.CHARACTERS) do
     for i in pairs(March22.CHARACTERS[k].sprites) do
