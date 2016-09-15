@@ -1,6 +1,17 @@
 #March22-Lua Changelog
 ##NOTE: I hardly ever remember what I add per version, so it may be inaccurate
 
+#### v0.6.3
+- Decision trees
+	* Handled by imachine.lua
+	* Scripts call "MakeDecision()" with the appropriate parameters
+	* This function hijacks the framebuffer to draw the decisions onscreen.
+- Saving/loading
+	* Works well enough for one load, but fails at line 172 (one of the music tracks) for the script
+	* Probably a RAM issue; some sounds not getting freed properly?
+	* Should try and stream from storage instead of preloading.
+- New RPYtoLua specifically for compiling imachine.lua
+
 #### v0.5.0
 - Fixed every bug listed on the first binary release
 	* Refer to that buglist; it pretty much is the changelog for this version

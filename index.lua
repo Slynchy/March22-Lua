@@ -30,8 +30,9 @@ timeSinceStart = 0;
 oldTimeSinceStart = 0;
 timer=Timer.new();
 --March22.CURRENTLINE = (500 - 100);
-March22.CURRENTLINE = 1;
-March22.NextLine();
+--March22.CURRENTLINE = 1;
+--March22.NextLine();
+LABELS["imachine"][1]();
 -- Main loop
 while true do
 	
@@ -49,20 +50,30 @@ while true do
 	
 	-- Update input
 	March22.UpdatePad();
-	if March22.BUTTON_X_PRESSED == 1 then
-		if March22.TypeWriterLineComplete then
-			March22.ChangeLine(March22.CURRENTLINE + 1);
-			March22.TypeWriterFrame = 0;
-		else
-			March22.TypeWriterFrame = 420;
+	if March22.DRAW_TEXTBOX == true then
+		if March22.BUTTON_X_PRESSED == 1 then
+			if March22.TypeWriterLineComplete then
+				March22.ChangeLine(March22.CURRENTLINE + 1);
+				March22.TypeWriterFrame = 0;
+			else
+				March22.TypeWriterFrame = 420;
+			end
 		end
 	end
-	if Controls.check(March22.PAD, SCE_CTRL_RTRIGGER) then
+	if (Controls.check(March22.PAD, SCE_CTRL_RTRIGGER)) and (March22.DRAW_TEXTBOX == true) then
 		March22.ChangeLine(March22.CURRENTLINE + 1);
 		March22.TypeWriterFrame = 0;
 	end
 	if March22.BUTTON_TRIANGLE_PRESSED == 1 then
-		System.exit()
+		--System.exit()
+		jump_out ("A3");
+		--March22.SaveGame();
+	end
+	if March22.BUTTON_SQUARE_PRESSED == 1 then
+		March22.SaveGame();
+	end
+	if March22.BUTTON_START_PRESSED == 1 then
+		March22.LoadGame();
 	end
 	
 	-- Flip screen
@@ -73,6 +84,9 @@ while true do
 	end
 	if March22.BUTTON_TRIANGLE_PRESSED == 1 then
 		March22.BUTTON_TRIANGLE_PRESSED = 2;
+	end
+	if March22.BUTTON_START_PRESSED == 1 then
+		March22.BUTTON_START_PRESSED = 2;
 	end
 	
 	Screen.waitVblankStart();

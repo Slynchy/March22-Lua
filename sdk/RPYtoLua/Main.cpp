@@ -7,7 +7,7 @@
 
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 5
-#define VERSION_PATCH 0
+#define VERSION_PATCH 6
 
 #include <string>
 #include <iostream>
@@ -24,7 +24,8 @@ enum LUAFUNCTION {
 	CHANGE_BACKGROUND,
 	CHANGELINE,
 	CLEAR_CHARACTER, 
-	NEW_CHARACTER
+	NEW_CHARACTER,
+	NEW_DECISION
 };
 
 struct Character {
@@ -36,24 +37,63 @@ struct Character {
 	};
 };
 
+struct DECISION
+{
+	/*decobj.speaker = _speaker;
+	decobj.speech = _speech;
+	decobj.decision1 = _decision1;
+	decobj.decision2 = _decision2;
+	decobj.decision3 = nil;*/
+	std::wstring speaker, speech;
+	std::vector<std::wstring> decisions;
+};
+
 int LoadScriptIntoVector(const wchar_t* _input, std::vector<std::wstring>& _vector);
 std::vector<std::wstring> GetLoadedBackgroundsFromVector(std::vector<std::wstring>& _vector);
 std::vector<std::wstring> GetLoadedSFXFromVector(std::vector<std::wstring>& _vector);
 std::vector<std::wstring> GetLoadedMusicFromVector(std::vector<std::wstring>& _vector);
 unsigned int SplitString(const std::wstring &txt, std::vector<std::wstring> &strs, char ch);
 std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector);
-void WriteCompiledScript(std::vector<std::wstring>& _backgrounds, std::vector<std::wstring>& _lines, std::vector<std::wstring>& _sfx, std::vector<Character>& _characters, std::vector<std::wstring>& _music);
+void WriteCompiledScript(std::wstring _filename, std::vector<std::wstring>& _backgrounds, std::vector<std::wstring>& _lines, std::vector<std::wstring>& _sfx, std::vector<Character>& _characters, std::vector<std::wstring>& _music);
 int LoadTXTIntoVector(const char* _file, std::vector<std::wstring>& _vector);
 std::wstring CreateLuaFunction(LUAFUNCTION _function, std::wstring _param, bool _newline = false, bool _prefixsuffix = false, std::wstring _param2 = L"", std::wstring _param3 = L"", std::wstring _param4 = L"", std::wstring _param5 = L"");
 std::vector<Character> GetLoadedCharactersFromVector(std::vector<std::wstring>& _vector);
-
+std::wstring CreateDecision(size_t& pos, std::vector<std::wstring>& _vector);
 bool isCharacter(std::wstring _name);
+
+struct LABEL
+{
+	std::wstring name;
+	unsigned int position; // in lua, so starts at 1
+};
 
 std::vector<std::wstring> CHARACTER_NAMES;
 std::vector<std::wstring> CHARACTER_NAMES_FIXED;
-
-int main(void)
+std::vector<LABEL> LABELS;
+std::wstring to_wstring(const char* _input)
 {
+	std::wstring output;
+	std::string input = _input;
+	output.assign(input.begin(), input.end());
+	return output;
+};
+
+int main(int argc, wchar_t* argv[])
+{
+
+	std::wstring filename;
+
+	if (argc < 2)
+	{
+		//printf("No parameters!\n");
+		filename = L"script-a1-monday.rpy";
+		//return -1;
+	}
+	else
+	{
+		filename = argv[1];
+	}
+
 	std::vector<std::wstring> SCRIPT;
 	std::vector<std::wstring> BACKGROUNDS;
 	std::vector<Character> CHARACTERS;
@@ -64,7 +104,7 @@ int main(void)
 	LoadTXTIntoVector("./charnames.txt", CHARACTER_NAMES);
 	LoadTXTIntoVector("./charnames_fixed.txt", CHARACTER_NAMES_FIXED);
 
-	LoadScriptIntoVector(L"./test.rpy", SCRIPT);
+	LoadScriptIntoVector(filename.c_str(), SCRIPT);
 	
 	CHARACTERS = GetLoadedCharactersFromVector(SCRIPT);
 	BACKGROUNDS =  GetLoadedBackgroundsFromVector(SCRIPT);
@@ -73,10 +113,89 @@ int main(void)
 	LINES = GetLinesFromVector(SCRIPT);
 
 
-	WriteCompiledScript(BACKGROUNDS, LINES, SFX, CHARACTERS, MUSIC);
+	WriteCompiledScript(filename, BACKGROUNDS, LINES, SFX, CHARACTERS, MUSIC);
 	printf("\nsuccesful!");
 
 	return 0;
+}
+
+// http://stackoverflow.com/questions/1494399/how-do-i-search-find-and-replace-in-a-standard-string
+void myReplace(std::wstring& str,
+	const std::wstring& oldStr,
+	const std::wstring& newStr)
+{
+	std::wstring::size_type pos = 0u;
+	while ((pos = str.find(oldStr, pos)) != std::wstring::npos) {
+		str.replace(pos, oldStr.length(), newStr);
+		pos += newStr.length();
+	}
+}
+
+std::wstring CreateDecision(size_t& pos, std::vector<std::wstring>& _vector)
+{
+	DECISION newDec;
+	size_t endpos;
+	for(size_t i = pos; i < _vector.size(); i++)
+	{
+		std::vector<std::wstring> splitString;
+		SplitString(_vector.at(i), splitString, ' ');
+		if (splitString.at(0) == L"label")
+		{
+			endpos = i;
+			break;
+		}
+	}
+
+	for (size_t i = pos; i < endpos; i++)
+	{
+		// remove tabs
+		myReplace(_vector.at(i), L"    ", L"");
+		std::vector<std::wstring> splitString;
+		SplitString(_vector.at(i), splitString, ' ');
+		if (isCharacter(splitString.at(0)))
+		{
+			newDec.speaker = splitString.at(0);
+			_vector.at(i).erase(0, splitString.at(0).size()+1);
+			myReplace(_vector.at(i), L"\"", L"");
+			newDec.speech = _vector.at(i);
+		}
+		if (_vector.at(i).at(0) == L'\"')
+		{
+			myReplace(_vector.at(i), L"\"", L"");
+			_vector.at(i).pop_back();
+			newDec.decisions.push_back(_vector.at(i));
+		}
+	}
+
+	pos = endpos;
+	//Decision.new (_speaker, _speech, _decision1, _decision2, _decision3)
+
+	std::wstring result;
+	result += L"function() ";
+	result += L"MakeDecision(Decision.new(\"";
+
+	bool characterNameFound = false;
+	for (size_t chr = 0; chr < CHARACTER_NAMES.size(); chr++)
+	{
+		if (newDec.speaker == CHARACTER_NAMES.at(chr))
+		{
+			characterNameFound = true;
+			newDec.speaker = CHARACTER_NAMES_FIXED.at(chr);
+		}
+	}
+	if (!characterNameFound) newDec.speaker = L"";
+
+	result += newDec.speaker;
+	result += L"\", \"";
+	result += newDec.speech + L"\"";
+	for (size_t i = 0; i < newDec.decisions.size(); i++)
+	{
+		result += L", \"";
+		result += newDec.decisions.at(i) + L"\"";
+	}
+	result += L")); end ";
+
+	return result;
 }
 
 int LoadTXTIntoVector(const char* _file, std::vector<std::wstring>& _vector)
@@ -101,7 +220,6 @@ int LoadTXTIntoVector(const char* _file, std::vector<std::wstring>& _vector)
 
 std::wstring GenerateCharacterArray(Character& _char)
 {
-	//March22.CHARACTERS["shizune"] = Character.new("shizune", {"normal"}); 
 	std::wstring result = L"March22.CHARACTERS[\"";
 	result += _char.name;
 	result += L"\"] = Character.new(\"";
@@ -127,15 +245,23 @@ std::wstring GenerateCharacterArray(Character& _char)
 	return result;
 }
 
-void WriteCompiledScript(std::vector<std::wstring>& _backgrounds, std::vector<std::wstring>& _lines, std::vector<std::wstring>& _sfx, std::vector<Character>& _characters, std::vector<std::wstring>& _music)
+void WriteCompiledScript(std::wstring _filename, std::vector<std::wstring>& _backgrounds, std::vector<std::wstring>& _lines, std::vector<std::wstring>& _sfx, std::vector<Character>& _characters, std::vector<std::wstring>& _music)
 {
-	std::wofstream textOutput("./script-a1-monday.lua");
+	_filename += L".lua";
+	std::wofstream textOutput(_filename);
 	textOutput.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t, 0x10ffff>));
 
 	textOutput << L"-- This file was automatically generated by RPYtoLua v" << VERSION_MAJOR << L"." << VERSION_MINOR << L"." << VERSION_PATCH; 
 	textOutput << L"\n-- For use with March22-Lua\n-- By Sam Lynch\n\n";
 	textOutput << L"dofile(\"app0:/LUA_CLASSES/Line.lua\");\ndofile(\"app0:/March22_background.lua\");\n\n";
-	textOutput << "\nLOADEDSFX = {};\nLOADEDMUSIC = {};\n\n";
+	textOutput << L"\nLOADEDSFX = {};\nLOADEDMUSIC = {};\nLABEL_POSITIONS = {};\n";
+	textOutput << L"March22.CURRENTSCRIPTNAME = \"" << _filename << L"\";\n\n";
+
+	for (size_t i = 0; i < LABELS.size(); i++)
+	{
+		textOutput << L"LABEL_POSITIONS[\"" << LABELS.at(i).name << L"\"] = " << LABELS.at(i).position << L";\n";
+	}
+	textOutput << L"\n\n";
 
 	float percentage = 0.0f;
 	for (size_t i = 0; i < _characters.size(); i++)
@@ -200,7 +326,8 @@ std::wstring CreateLuaFunction(LUAFUNCTION _function, std::wstring _param, bool 
 			result += std::wstring(L"March22.PlayTrack(\"" + _param + L"\");");
 			break;
 		case CHANGE_BACKGROUND:
-			result += std::wstring(L"March22.ACTIVEBACKGROUND = LOADEDBACKGROUNDS[\"" + _param + L"\"];");
+			//result += std::wstring(L"March22.ACTIVEBACKGROUND = LOADEDBACKGROUNDS[\"" + _param + L"\"];");
+			result += std::wstring(L"ChangeBackground(\"" + _param + L"\");");
 			break;
 		case CLEAR_CHARACTER:
 			result += std::wstring(L"March22.ClearCharacter(\""+ _param + L"\");");
@@ -280,14 +407,16 @@ std::wstring CheckForAnimation(std::vector<std::wstring>& _vector, size_t _pos)
 
 std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector)
 {
-	//Line.new("", Color.new(255, 255, 255), "A light breeze causes the naked branches overhead to rattle like wooden windchimes."),
 	std::wstring COLOR = L"March22.WHITE_COLOUR, ";
 	std::vector<std::wstring> result;
 
-	enum TYPE {UNKNOWN, PLAYSOUND, PLAYMUSIC, CHANGEBACKGROUND, ADDSPRITE, CLEARSPRITE, SPEECH, NARRATIVE};
+	std::wstring* ACTIVE_THING;
+
+	enum TYPE {UNKNOWN, PLAYSOUND, PLAYMUSIC, CHANGEBACKGROUND, ADDSPRITE, CLEARSPRITE, SPEECH, NARRATIVE, LABEL_TYPE, NEW_DECISION};
 
 	for (size_t i = 0; i < _vector.size(); i++)
 	{
+		ACTIVE_THING = &_vector.at(i);
 		TYPE type = UNKNOWN;
 		std::vector<std::wstring> splitString;
 		SplitString(_vector.at(i), splitString, ' ');
@@ -332,6 +461,14 @@ std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector)
 			{
 				type = CHANGEBACKGROUND;
 			}
+			else if (splitString.at(0) == L"label")
+			{
+				type = LABEL_TYPE;
+			}
+			else if (splitString.at(0) == L"menu:")
+			{
+				type = NEW_DECISION;
+			}
 			
 			bool characterNameFound = false;
 			for (size_t chr = 0; chr < CHARACTER_NAMES.size(); chr++)
@@ -374,6 +511,31 @@ std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector)
 			tempStr += L", ";
 			tempStr += CreateLuaFunction(LUAFUNCTION::PLAY_MUSIC, splitString.at(2), true, true);
 			tempStr += L"),\n";
+		}
+		else if (type == NEW_DECISION)
+		{
+			tempStr += L", ";
+			tempStr += CreateDecision(i, _vector);
+			//ACTIVE_THING = &_vector.at(i);
+			i--;
+			tempStr += L"),\n";
+			// std::wstring CreateDecision(size_t& pos, std::vector<std::wstring>& _vector)
+		}
+		else if (type == LABEL_TYPE)
+		{
+			tempStr += L", ";
+			splitString.at(1).pop_back();
+
+			// REMOVING en_ FROM LABEL NAME
+				splitString.at(1).erase(0, 3);
+			// REMOVING en_ FROM LABEL NAME
+
+			tempStr += L"function() --[[ " + splitString.at(1) + L" ]] end";
+			tempStr += L"),\n";
+			LABEL templabel;
+			templabel.name = splitString.at(1);
+			templabel.position = result.size() + 1; // lua starts at 1
+			LABELS.push_back(templabel);
 		}
 		else if (type == CHANGEBACKGROUND)
 		{

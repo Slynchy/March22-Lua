@@ -2,6 +2,9 @@
 -- Index for current line of script (LUA STARTS AT 1, NOT ZERO BECAUSE THAT MAKES SENSE.)
 March22.CURRENTLINE = 1;
 
+March22.CURRENT_LABEL = "imachine";
+March22.CURRENT_LABEL_POSITION = 1;
+
 -- Shorthand for ChangeLine(current+1)
 -- Deprecated
 function March22.NextLine()
@@ -19,8 +22,21 @@ function March22.ChangeLine(_number)
     March22.ACTIVECHARACTER_NAME = ACTIVE_SCRIPT[March22.CURRENTLINE].speaker;
     March22.ACTIVESPEECH = ACTIVE_SCRIPT[March22.CURRENTLINE].content;
     March22.ACTIVECHARACTER_COLOR = ACTIVE_SCRIPT[March22.CURRENTLINE].color;
+	
+	newlabel = false;
+	for k in pairs(LABEL_POSITIONS) do
+		if LABEL_POSITIONS[k] == March22.CURRENTLINE then
+			-- previous label has ended so terminate it
+			-- March22.CURRENT_LABEL = k;
+			March22.CURRENT_LABEL_POSITION = March22.CURRENT_LABEL_POSITION + 1;
+			LABELS[March22.CURRENT_LABEL][March22.CURRENT_LABEL_POSITION]();
+			newlabel = true;
+		end
+	end
 
-    ACTIVE_SCRIPT[March22.CURRENTLINE].func();
+    if newlabel == false then 
+		ACTIVE_SCRIPT[March22.CURRENTLINE].func(); 
+	end;
   end
 end
 
@@ -28,8 +44,12 @@ function March22.UnloadLoadedAssets()
 
   --Unload backgrounds
   for k in pairs(LOADEDBACKGROUNDS) do
-    Graphics.freeImage(LOADEDBACKGROUNDS[k]);
-    LOADEDBACKGROUNDS[k] = nil;
+	if not (k == "black") then
+		if not (k == "white") then
+			Graphics.freeImage(LOADEDBACKGROUNDS[k]);
+			LOADEDBACKGROUNDS[k] = nil;
+		end
+	end
   end
   March22.ACTIVEBACKGROUND = nil;
 
@@ -37,6 +57,20 @@ function March22.UnloadLoadedAssets()
   for k in pairs(LOADEDSFX) do
     Sound.close(LOADEDSFX[k]);
     LOADEDSFX[k] = nil;
+  end
+  for k in pairs(LOADEDMUSIC) do
+    Sound.close(LOADEDMUSIC[k]);
+    LOADEDMUSIC[k] = nil;
+  end
+  
+  --unload script label positions
+  for k in pairs(LABEL_POSITIONS) do
+    LABEL_POSITIONS[k] = nil;
+  end
+  
+  --Unload current script
+  for k in pairs(ACTIVE_SCRIPT) do
+    ACTIVE_SCRIPT[k] = nil;
   end
 
   --Unload characters

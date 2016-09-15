@@ -45,9 +45,6 @@ function Character.new (_name, _sprite_array)
   charobj.name = _name;
   charobj.sprites = {};
   for k in pairs(_sprite_array) do
-    -- table.insert(charobj.sprites, Graphics.loadImage("app0:/graphics/characters/".._name.."/".._sprite_array[k]..".png"));
-    --local fileStream = io.open("app0:/log.txt",FCREATE);
-    --io.write(fileStream,"app0:/graphics/characters/".._name.."/".._name.."_".._sprite_array[k]..".png\n", 90);
     charobj.sprites[_sprite_array[k]] = Graphics.loadImage("app0:/graphics/characters/".._name.."/".._name.."_".._sprite_array[k]..".png");
   end
   
