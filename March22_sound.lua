@@ -1,4 +1,8 @@
+
+-- Init the lpp-vita sound engine
 Sound.init();
+
+-- Plays the specified music track
 function March22.PlayTrack(_name)
 	if LOADEDMUSIC[_name] == nil then
 		return;
@@ -12,7 +16,3 @@ function March22.PlayTrack(_name)
 		Sound.play(March22.ACTIVEMUSICTRACK,LOOP);
 	end
 end
-
---March22.ACTIVEMUSICTRACK = LOADEDMUSIC["music_serene"];
---
---

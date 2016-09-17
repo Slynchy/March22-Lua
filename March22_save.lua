@@ -1,5 +1,9 @@
+-- Table of scenes that the player has seen in the playthrough
+-- i.e. SeenScenes[_scriptlabel] == true if the player has seen the specified one.
+-- Should use seen_scene() though.
 March22.SeenScenes = {};
 
+-- Writes a lua file in a folder in ux0:/data that inits data for savegames
 March22.SaveGame = function()
 	if not (System.doesFileExist("ux0:/data/KatawaShoujo/SaveData.lua")) then
 		System.createDirectory("ux0:/data/KatawaShoujo");
@@ -49,6 +53,8 @@ March22.SaveGame = function()
 	io.close(handle)
 end
 
+-- Simple; just unloads loaded assets and executes the save file
+-- If it exists
 March22.LoadGame = function()
 	-- check file exists
 	if System.doesFileExist("ux0:/data/KatawaShoujo/SaveData.lua") then

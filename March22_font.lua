@@ -1,6 +1,11 @@
 
+-- init the typewriter frame variable
 March22.TypeWriterFrame = 0.0;
 
+-- boolean for whether line is done typewriting
+March22.TypeWriterLineComplete = false;
+
+-- Gets the size of the char (to tell if UTF-8 or not)
 function chsize(char)
     if not char then
         return 0
@@ -15,6 +20,7 @@ function chsize(char)
     end
 end
 
+-- Performs substring op on UTF-8 string without breaking it
 function utf8sub(str, startChar, numChars)
   local startIndex = 1
   while startChar > 1 do
@@ -34,6 +40,7 @@ function utf8sub(str, startChar, numChars)
 end
 
 -- Writes wrapped text according to maxChar variable
+-- Maximum of 3 lines of text
 function March22.DrawWrappedText(_font, _x, _y, _text, _color)
 
   if _text == "" then
@@ -115,8 +122,7 @@ function March22.DrawWrappedText(_font, _x, _y, _text, _color)
 
 end
 
-March22.TypeWriterLineComplete = false;
-
+-- Draws substring of wrapped text with typewriter effect
 function March22.DrawTypeWriterEffect(_font, _x, _y, _text, _color)
   March22.TypeWriterFrame = March22.TypeWriterFrame + 0.5;
   tempint = string.len(_text);
@@ -127,7 +133,6 @@ function March22.DrawTypeWriterEffect(_font, _x, _y, _text, _color)
 	March22.TypeWriterLineComplete = true;
   else
 	March22.TypeWriterLineComplete = false;
-    --tempText = string.sub(_text, 0, math.ceil(March22.TypeWriterFrame));
 	tempText = utf8sub(_text, 0, math.ceil(March22.TypeWriterFrame)); -- From http://wowprogramming.com/snippets/UTF-8_aware_stringsub_7
   end
   

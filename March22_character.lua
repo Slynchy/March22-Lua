@@ -1,18 +1,14 @@
 
-
-March22.CHARACTERS = {};                                -- Table of characters and their sprites (see Character.lua)
---March22.CHARACTERS["shizune"] = Character.new("shizune", {"normal"});         -- How to initialize one called shizune with 1 emotion called normal
-
-
+-- Init the loaded characters table
+March22.CHARACTERS = {};
 
 -- Table of character sprites to draw on-screen and where
 March22.ACTIVECHARACTERS = {                              
-  --CharacterSprite.new ( (960/2) - (295 / 2), 544 - 600, "shizune", "normal")
+ 
 };
 
--- Removes the specifed character from the active array
--- Params:
-    -- _name = name of character
+-- Removes the specifed character from the active array    
+ -- _name = name of character
 function March22.ClearCharacter(_name)
   if _name == nil then    
     for k in pairs(March22.ACTIVECHARACTERS) do
@@ -21,9 +17,7 @@ function March22.ClearCharacter(_name)
   else
     for k in pairs(March22.ACTIVECHARACTERS) do
         if March22.ACTIVECHARACTERS[k].name == _name then
-          --March22.ACTIVECHARACTERS[k] = nil;
           March22.ACTIVECHARACTERS[k].destroy = true;
-          --March22.ACTIVECHARACTERS[k].Update = March22.ACTIVECHARACTERS[k].DestroyFunc;
           break;
         end
     end
@@ -54,7 +48,8 @@ function March22.AddCharacterToActive(_x, _charname, _emotion, _anim, _animfunc,
         x = ( ( ( (960 / 2) / 2) + (960 / 2)) - (x / 2) );
     end
     
-    -- check if char already exists
+    -- check if char already exists in the active char array
+    -- if it does, then unload it after stealing the X value
     for k in pairs(March22.ACTIVECHARACTERS) do
       if March22.ACTIVECHARACTERS[k].name == _charname then
           if _x == "None" then
