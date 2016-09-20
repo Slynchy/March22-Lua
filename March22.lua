@@ -10,7 +10,7 @@
 
 --Namespace
 March22 = {};
-March22.version = {0, 6, 3}; -- Major, minor, revision
+March22.version = {0, 6, 5}; -- Major, minor, revision
 print("Loading March22 v"..March22.version[1]..".".. March22.version[2] ..".".. March22.version[3]);
 
 --CONSTANTS
@@ -56,7 +56,7 @@ dofile("app0:/March22_character.lua");
 dofile("app0:/March22_labels.lua");
 
 -- Load the first script file; this will be eventually called "index" or "entrypoint.lua"
-dofile("app0:/scripts/script-a1-monday.rpy.lua");
+dofile("app0:/scripts/script-a1-monday.lua");
 
 -- Init the active variables with the first line of the script
 March22.ACTIVECHARACTER_NAME = ACTIVE_SCRIPT[1].speaker; 

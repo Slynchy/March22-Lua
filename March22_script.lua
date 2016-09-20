@@ -83,6 +83,8 @@ function March22.UnloadLoadedAssets()
 		March22.CHARACTERS[k] = nil;
 	end
 	March22.ClearCharacter();
+	
+	collectgarbage("collect")
 end
 
 -- Changes script to the specified one

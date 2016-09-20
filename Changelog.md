@@ -1,6 +1,19 @@
 #March22-Lua Changelog
 ##NOTE: I hardly ever remember what I add per version, so it may be inaccurate
 
+#### v0.6.5
+- Wrapper for LÖVE
+	* Means can dev on PC/Mac/Linux without a PSVita
+	* Still needs PSVita for debugging console-specific stuff though
+- Added explicit garbage collection in hopes it fixes running out of RAM
+- Fixed savegames only working when saved during narrative
+- Todo:
+	* Add active music to savegame
+	* Test multiple script deployment
+	* Music file streaming from storage as opposed to preloading
+	* Update RPYtoLua to remove .rpy from end of script name so it doesn't end up as "file.rpy.lua"
+		+ Breaks love2d for some reason
+
 #### v0.6.3
 - Decision trees
 	* Handled by imachine.lua

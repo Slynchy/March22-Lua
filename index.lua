@@ -49,8 +49,9 @@ while true do
 		end
 	end
 	if (Controls.check(March22.PAD, SCE_CTRL_RTRIGGER)) and (March22.DRAW_TEXTBOX == true) then
-		March22.ChangeLine(March22.CURRENTLINE + 1);
-		March22.TypeWriterFrame = 0;
+		--March22.ChangeLine(March22.CURRENTLINE + 1);
+		--March22.TypeWriterFrame = 0;
+		System.exit()
 	end
 	if March22.BUTTON_TRIANGLE_PRESSED == 1 then
 		--System.exit()
@@ -58,9 +59,11 @@ while true do
 		--March22.SaveGame();
 	end
 	if March22.BUTTON_SQUARE_PRESSED == 1 then
+		print("saving\n");
 		March22.SaveGame();
 	end
 	if March22.BUTTON_START_PRESSED == 1 then
+		print("loading\n");
 		March22.LoadGame();
 	end
 	
@@ -72,6 +75,9 @@ while true do
 	end
 	if March22.BUTTON_TRIANGLE_PRESSED == 1 then
 		March22.BUTTON_TRIANGLE_PRESSED = 2;
+	end
+	if March22.BUTTON_SQUARE_PRESSED == 1 then
+		March22.BUTTON_SQUARE_PRESSED = 2;
 	end
 	if March22.BUTTON_START_PRESSED == 1 then
 		March22.BUTTON_START_PRESSED = 2;
