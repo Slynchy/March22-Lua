@@ -1,6 +1,16 @@
 #March22-Lua Changelog
 ##NOTE: I hardly ever remember what I add per version, so it may be inaccurate
 
+#### v0.6.6
+- Added active music to savegame
+- Multiple script support
+	* Checks if iscene exists in current script; if not, loads necessary script then jumps to it
+	* Seems to work on PC, don't know about PSVita yet
+	* Needs more assets to really test, though
+- Updated RPYtoLua
+	* Outputs .lua files instead of .rpy.lua files (because it breaks the crap out of love2d)
+- Working on an automated installer script so as to not violate Katawa Shoujo's license (see installer folder)
+
 #### v0.6.5
 - Wrapper for LÖVE
 	* Means can dev on PC/Mac/Linux without a PSVita

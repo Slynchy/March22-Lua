@@ -10,7 +10,7 @@
 
 --Namespace
 March22 = {};
-March22.version = {0, 6, 5}; -- Major, minor, revision
+March22.version = {0, 6, 6}; -- Major, minor, revision
 print("Loading March22 v"..March22.version[1]..".".. March22.version[2] ..".".. March22.version[3]);
 
 --CONSTANTS

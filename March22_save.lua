@@ -3,6 +3,46 @@
 -- Should use seen_scene() though.
 March22.SeenScenes = {};
 
+March22.GenerateSaveString = function()
+	content = "";
+	
+	--background
+	content = content.."ChangeBackground(\""..March22.ACTIVEBACKGROUND_NAME.."\");\n";
+	
+	--active music track
+	--March22.ACTIVEMUSICTRACK
+	content = content.."March22.ACTIVEMUSICTRACK_NAME = \""..March22.ACTIVECHARACTER_NAME.."\";\n";
+	content = content.."Sound.play(March22.ACTIVEMUSICTRACK,LOOP);\n";
+	
+	content = content.."March22.CURRENTLINE = "..March22.CURRENTLINE..";\n";
+	content = content.."March22.ACTIVECHARACTER_NAME = \""..March22.ACTIVECHARACTER_NAME.."\";\n";
+	if March22.ACTIVECHARACTER_NAME == "" then
+		content = content.."March22.ACTIVESPEECH = \""..March22.ACTIVESPEECH.."\";\n\n";
+	else
+		content = content.."March22.ACTIVESPEECH = "..March22.ACTIVESPEECH..";\n\n";
+	end
+	
+	red = March22.ACTIVECHARACTER_COLOR.r;
+	green = March22.ACTIVECHARACTER_COLOR.g;
+	blue = March22.ACTIVECHARACTER_COLOR.b;
+	content = content.."March22.ACTIVECHARACTER_COLOR = Color.new("..red..", "..green..", "..blue.. ");\n\n";
+	
+	for k in pairs(March22.ACTIVECHARACTERS) do
+		content = content.."table.insert(March22.ACTIVECHARACTERS, CharacterSprite.new ( "..March22.ACTIVECHARACTERS[k].x..", "..March22.ACTIVECHARACTERS[k].y..", \""..March22.ACTIVECHARACTERS[k].name.."\", \""..March22.ACTIVECHARACTERS[k].emotion.."\"));\n\n"
+	end
+	
+	for k in pairs(March22.SeenScenes) do
+		content = content.."March22.SeenScenes[\""..k.."\"] = ";--..March22.SeenScenes[k].."\n";
+		if March22.SeenScenes[k] == true then
+			content = content.."true;\n";
+		else
+			content = content.."false;\n";
+		end
+	end
+	
+	return content;
+end
+
 if IS_ON_PC == nil then
 
 	-- Writes a lua file in a folder in ux0:/data that inits data for savegames
@@ -13,44 +53,12 @@ if IS_ON_PC == nil then
 			System.deleteFile("ux0:/data/KatawaShoujo/SaveData.lua");
 		end
 		handle = io.open("ux0:/data/KatawaShoujo/SaveData.lua", FCREATE);
-		
+	
 		--the code for loading the correct script file, also shows load screen
 		content = "dofile(\"app0:/scripts/"..March22.CURRENTSCRIPTNAME.."\");\n";
-		io.write(handle, content, string.len(content))
+		content = content..March22.GenerateSaveString();
 		
-		--background
-		content = "ChangeBackground(\""..March22.ACTIVEBACKGROUND_NAME.."\");\n";
 		io.write(handle, content, string.len(content))
-		
-		content = "March22.CURRENTLINE = "..March22.CURRENTLINE..";\n";
-		io.write(handle, content, string.len(content))
-		content = "March22.ACTIVECHARACTER_NAME = \""..March22.ACTIVECHARACTER_NAME.."\";\n";
-		io.write(handle, content, string.len(content))
-		content = "March22.ACTIVESPEECH = \""..March22.ACTIVESPEECH.."\";\n\n";
-		io.write(handle, content, string.len(content))
-		
-		red = Color.getR(March22.ACTIVECHARACTER_COLOR);
-		blue = Color.getB(March22.ACTIVECHARACTER_COLOR);
-		green = Color.getG(March22.ACTIVECHARACTER_COLOR);
-		content = "March22.ACTIVECHARACTER_COLOR = Color.new("..red..", "..green..", "..blue.. ");\n\n";
-		io.write(handle, content, string.len(content))
-		
-		--March22.AddCharacterToActive(_x, _charname, _emotion, _anim, _animfunc, _speed)
-		--iterate through March22.ACTIVECHARACTERS and record them using the above function
-		for k in pairs(March22.ACTIVECHARACTERS) do
-			content = "table.insert(March22.ACTIVECHARACTERS, CharacterSprite.new ( "..March22.ACTIVECHARACTERS[k].x..", "..March22.ACTIVECHARACTERS[k].y..", \""..March22.ACTIVECHARACTERS[k].name.."\", \""..March22.ACTIVECHARACTERS[k].emotion.."\"));\n\n"
-			io.write(handle, content, string.len(content))
-		end
-		
-		for k in pairs(March22.SeenScenes) do
-			content = "March22.SeenScenes[\""..k.."\"] = ";--..March22.SeenScenes[k].."\n";
-			if March22.SeenScenes[k] == true then
-				content = content.."true;\n";
-			else
-				content = content.."false;\n";
-			end
-			io.write(handle, content, string.len(content))
-		end
 		
 		io.close(handle)
 	end
@@ -71,35 +79,8 @@ else
 		--the code for loading the correct script file, also shows load screen
 		content = "require(\"scripts/"..string.sub(March22.CURRENTSCRIPTNAME, 0, -5).."\");\n";
 		
-		--background
-		content = content.."ChangeBackground(\""..March22.ACTIVEBACKGROUND_NAME.."\");\n";
+		content = content..March22.GenerateSaveString();
 		
-		content = content.."March22.CURRENTLINE = "..March22.CURRENTLINE..";\n";
-		content = content.."March22.ACTIVECHARACTER_NAME = \""..March22.ACTIVECHARACTER_NAME.."\";\n";
-		if March22.ACTIVECHARACTER_NAME == "" then
-			content = content.."March22.ACTIVESPEECH = \""..March22.ACTIVESPEECH.."\";\n\n";
-		else
-			content = content.."March22.ACTIVESPEECH = "..March22.ACTIVESPEECH..";\n\n";
-		end
-		
-		red = March22.ACTIVECHARACTER_COLOR.r;
-		blue = March22.ACTIVECHARACTER_COLOR.b;
-		green = March22.ACTIVECHARACTER_COLOR.g;
-		content = content.."March22.ACTIVECHARACTER_COLOR = Color.new("..red..", "..green..", "..blue.. ");\n\n";
-		
-		for k in pairs(March22.ACTIVECHARACTERS) do
-			content = content.."table.insert(March22.ACTIVECHARACTERS, CharacterSprite.new ( "..March22.ACTIVECHARACTERS[k].x..", "..March22.ACTIVECHARACTERS[k].y..", \""..March22.ACTIVECHARACTERS[k].name.."\", \""..March22.ACTIVECHARACTERS[k].emotion.."\"));\n\n"
-		end
-		
-		for k in pairs(March22.SeenScenes) do
-			content = content.."March22.SeenScenes[\""..k.."\"] = ";--..March22.SeenScenes[k].."\n";
-			if March22.SeenScenes[k] == true then
-				content = content.."true;\n";
-			else
-				content = content.."false;\n";
-			end
-		end
-		print(content);
 		love.filesystem.write("SaveData.lua", content, string.len(content))
 	end
 	March22.LoadGame = function()

@@ -223,6 +223,7 @@ dofile = function(param)
 	param = string.sub(param, 7);
 	param = "./"..param;
 	param = string.sub(param, 0, -5);
+	print(param);
 	require(param);
 end
 

@@ -44,18 +44,20 @@ while true do
 				March22.ChangeLine(March22.CURRENTLINE + 1);
 				March22.TypeWriterFrame = 0;
 			else
-				March22.TypeWriterFrame = 420;
+				March22.TypeWriterFrame = 1337;
 			end
 		end
 	end
 	if (Controls.check(March22.PAD, SCE_CTRL_RTRIGGER)) and (March22.DRAW_TEXTBOX == true) then
 		--March22.ChangeLine(March22.CURRENTLINE + 1);
 		--March22.TypeWriterFrame = 0;
+		--print("skip");
+		
 		System.exit()
 	end
 	if March22.BUTTON_TRIANGLE_PRESSED == 1 then
 		--System.exit()
-		jump_out ("A3");
+		jump_out ("A4");
 		--March22.SaveGame();
 	end
 	if March22.BUTTON_SQUARE_PRESSED == 1 then

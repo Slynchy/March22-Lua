@@ -1,5 +1,7 @@
+print("Loading March22_labels.lua");
 
 dofile("app0:/LUA_CLASSES/Decision.lua");
+dofile("app0:/scripts/LabelIndex.lua");
 March22.MakingDecision = false;
 
 -- These are the return values

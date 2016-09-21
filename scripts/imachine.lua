@@ -95,7 +95,7 @@ LABELS["A4"] = {
 };
 
 LABELS["A5"] = {
-	function() 	iscene("timeskip"); end,
+	--function() 	iscene("timeskip"); end,
 	function() 	iscene("A5"); end,
 	function() 	jump_out ("A6"); end
 };

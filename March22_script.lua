@@ -1,4 +1,4 @@
-
+print("Loading March22_script.lua");
 -- Index for current line of script (LUA STARTS AT 1, NOT ZERO BECAUSE THAT MAKES SENSE.)
 March22.CURRENTLINE = 1;
 
@@ -16,7 +16,9 @@ end
 -- Does not check if line doesn't exist, so be careful
 function March22.ChangeLine(_number)
 	if March22.CURRENTLINE >= SIZE_OF_ACTIVE_SCRIPT then
-		-- do nothing; EOF
+		-- EOF
+		March22.CURRENT_LABEL_POSITION = March22.CURRENT_LABEL_POSITION + 1;
+		LABELS[March22.CURRENT_LABEL][March22.CURRENT_LABEL_POSITION]();
 	else
 		March22.CURRENTLINE = March22.CURRENTLINE+1;
 		March22.ACTIVECHARACTER_NAME = ACTIVE_SCRIPT[March22.CURRENTLINE].speaker;
@@ -91,7 +93,10 @@ end
 -- Doesnt error check so no typos!
 function March22.ChangeScript(_scriptname)
   March22.UnloadLoadedAssets();
-  dofile("app0:/scripts/".._scriptname..".lua");
+  dofile("app0:/scripts/".._scriptname);
   March22.CURRENTLINE = 1;
+  March22.ACTIVECHARACTER_NAME = ACTIVE_SCRIPT[1].speaker; 
+  March22.ACTIVESPEECH = ACTIVE_SCRIPT[1].content;
+  March22.ACTIVECHARACTER_COLOR = ACTIVE_SCRIPT[1].color;
   March22.ChangeLine();
 end
