@@ -6,8 +6,8 @@
 */
 
 #define VERSION_MAJOR 0
-#define VERSION_MINOR 5
-#define VERSION_PATCH 6
+#define VERSION_MINOR 6
+#define VERSION_PATCH 0
 
 #include <string>
 #include <iostream>
@@ -53,7 +53,7 @@ std::vector<std::wstring> GetLoadedBackgroundsFromVector(std::vector<std::wstrin
 std::vector<std::wstring> GetLoadedSFXFromVector(std::vector<std::wstring>& _vector);
 std::vector<std::wstring> GetLoadedMusicFromVector(std::vector<std::wstring>& _vector);
 unsigned int SplitString(const std::wstring &txt, std::vector<std::wstring> &strs, char ch);
-std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector);
+std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector, std::wstring _filename = L"");
 void WriteCompiledScript(std::wstring _filename, std::vector<std::wstring>& _backgrounds, std::vector<std::wstring>& _lines, std::vector<std::wstring>& _sfx, std::vector<Character>& _characters, std::vector<std::wstring>& _music);
 int LoadTXTIntoVector(const char* _file, std::vector<std::wstring>& _vector);
 std::wstring CreateLuaFunction(LUAFUNCTION _function, std::wstring _param, bool _newline = false, bool _prefixsuffix = false, std::wstring _param2 = L"", std::wstring _param3 = L"", std::wstring _param4 = L"", std::wstring _param5 = L"");
@@ -67,9 +67,26 @@ struct LABEL
 	unsigned int position; // in lua, so starts at 1
 };
 
+struct LABEL_INDEX_OBJ
+{
+	std::wstring script_name;
+	std::wstring label_name;
+	LABEL_INDEX_OBJ()
+	{
+		script_name = L"";
+		label_name = L"";
+	}
+	~LABEL_INDEX_OBJ()
+	{
+		script_name.clear();
+		label_name.clear();
+	}
+};
+
 std::vector<std::wstring> CHARACTER_NAMES;
 std::vector<std::wstring> CHARACTER_NAMES_FIXED;
 std::vector<LABEL> LABELS;
+std::vector<LABEL_INDEX_OBJ> LABEL_INDEX;
 std::wstring to_wstring(const char* _input)
 {
 	std::wstring output;
@@ -77,46 +94,128 @@ std::wstring to_wstring(const char* _input)
 	output.assign(input.begin(), input.end());
 	return output;
 };
+std::wstring to_wstring(std::string _input)
+{
+	std::wstring output;
+	output.assign(_input.begin(), _input.end());
+	return output;
+};
+
+void WriteLabelIndexFile(void);
+void myReplace(std::wstring& str,
+	const std::wstring& oldStr,
+	const std::wstring& newStr);
 
 int main(int argc, wchar_t* argv[])
 {
 
 	std::wstring filename;
 
+	bool loadscriptfiletext = false;
+
 	if (argc < 2)
 	{
-		//printf("No parameters!\n");
-		filename = L"script-a1-monday.rpy";
+		printf("No parameters!\nLoading scriptfiles.txt...\n");
+		//filename = L"script-a1-monday.rpy";
+		loadscriptfiletext = true;
 		//return -1;
 	}
 	else
 	{
 		filename = argv[1];
 	}
-
-	std::vector<std::wstring> SCRIPT;
-	std::vector<std::wstring> BACKGROUNDS;
-	std::vector<Character> CHARACTERS;
-	std::vector<std::wstring> SFX;
-	std::vector<std::wstring> MUSIC;
-	std::vector<std::wstring> LINES;
-
 	LoadTXTIntoVector("./charnames.txt", CHARACTER_NAMES);
 	LoadTXTIntoVector("./charnames_fixed.txt", CHARACTER_NAMES_FIXED);
 
-	LoadScriptIntoVector(filename.c_str(), SCRIPT);
-	
-	CHARACTERS = GetLoadedCharactersFromVector(SCRIPT);
-	BACKGROUNDS =  GetLoadedBackgroundsFromVector(SCRIPT);
-	SFX = GetLoadedSFXFromVector(SCRIPT);
-	MUSIC = GetLoadedMusicFromVector(SCRIPT);
-	LINES = GetLinesFromVector(SCRIPT);
+	if (loadscriptfiletext == true)
+	{
+		std::vector<std::wstring> SCRIPT_FILE_NAMES;
+		LoadTXTIntoVector("./scriptfiles.txt", SCRIPT_FILE_NAMES);
+		for (size_t scrp = 0; scrp < SCRIPT_FILE_NAMES.size(); scrp++)
+		{
+			LABELS.clear();
+			filename = SCRIPT_FILE_NAMES.at(scrp);
+
+			std::vector<std::wstring> SCRIPT;
+			std::vector<std::wstring> BACKGROUNDS;
+			std::vector<Character> CHARACTERS;
+			std::vector<std::wstring> SFX;
+			std::vector<std::wstring> MUSIC;
+			std::vector<std::wstring> LINES;
+
+			LoadScriptIntoVector(filename.c_str(), SCRIPT);
+
+			std::vector<std::wstring> splitString;
+			SplitString(filename, splitString, '/');
+			filename = splitString.back();
+
+			CHARACTERS = GetLoadedCharactersFromVector(SCRIPT);
+			BACKGROUNDS = GetLoadedBackgroundsFromVector(SCRIPT);
+			SFX = GetLoadedSFXFromVector(SCRIPT);
+			MUSIC = GetLoadedMusicFromVector(SCRIPT);
+			LINES = GetLinesFromVector(SCRIPT, filename);
 
 
-	WriteCompiledScript(filename, BACKGROUNDS, LINES, SFX, CHARACTERS, MUSIC);
+			WriteCompiledScript(filename, BACKGROUNDS, LINES, SFX, CHARACTERS, MUSIC);
+		}
+		WriteLabelIndexFile();
+	}
+	else
+	{
+		std::vector<Character> CHARACTERS;
+		std::vector<std::wstring> SCRIPT;
+		std::vector<std::wstring> BACKGROUNDS;
+		std::vector<std::wstring> SFX;
+		std::vector<std::wstring> MUSIC;
+		std::vector<std::wstring> LINES;
+
+
+		LoadScriptIntoVector(filename.c_str(), SCRIPT);
+
+		std::vector<std::wstring> splitString;
+		SplitString(filename, splitString, '/');
+		filename = splitString.back();
+
+		CHARACTERS = GetLoadedCharactersFromVector(SCRIPT);
+		BACKGROUNDS = GetLoadedBackgroundsFromVector(SCRIPT);
+		SFX = GetLoadedSFXFromVector(SCRIPT);
+		MUSIC = GetLoadedMusicFromVector(SCRIPT);
+		LINES = GetLinesFromVector(SCRIPT);
+
+
+		WriteCompiledScript(filename, BACKGROUNDS, LINES, SFX, CHARACTERS, MUSIC);
+	}
+
 	printf("\nsuccesful!");
 
 	return 0;
+}
+
+void WriteLabelIndexFile(void)
+{
+	std::wofstream textOutput(L"./output/LabelIndex.lua");
+	textOutput.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t, 0x10ffff>));
+
+	if (textOutput)
+	{
+		textOutput << L"-- This file was automatically generated by RPYtoLua v" << VERSION_MAJOR << L"." << VERSION_MINOR << L"." << VERSION_PATCH;
+		textOutput << L"\n-- For use with March22-Lua\n-- By Sam Lynch\n\n";
+		textOutput << L"LABELINDEX = {};\n\n";
+		for (size_t i = 0; i < LABEL_INDEX.size(); i++)
+		{
+			myReplace(LABEL_INDEX.at(i).script_name, L".rpy", L"");
+			myReplace(LABEL_INDEX.at(i).script_name, L".lua", L""); // just in case
+			LABEL_INDEX.at(i).script_name += L".lua";
+			textOutput << L"LABELINDEX[\"" << LABEL_INDEX.at(i).label_name << L"\"] = \"" << LABEL_INDEX.at(i).script_name << "\";\n";
+		}
+		textOutput.close();
+	}
+	else
+	{
+		printf("Failed to create index file!\n");
+	}
+
+	return;
 }
 
 // http://stackoverflow.com/questions/1494399/how-do-i-search-find-and-replace-in-a-standard-string
@@ -248,7 +347,10 @@ std::wstring GenerateCharacterArray(Character& _char)
 void WriteCompiledScript(std::wstring _filename, std::vector<std::wstring>& _backgrounds, std::vector<std::wstring>& _lines, std::vector<std::wstring>& _sfx, std::vector<Character>& _characters, std::vector<std::wstring>& _music)
 {
 	_filename += L".lua";
+	myReplace(_filename, L".rpy", L"");
+	_filename.insert(0, L"./output/");
 	std::wofstream textOutput(_filename);
+	_filename.erase(0, 9);
 	textOutput.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t, 0x10ffff>));
 
 	textOutput << L"-- This file was automatically generated by RPYtoLua v" << VERSION_MAJOR << L"." << VERSION_MINOR << L"." << VERSION_PATCH; 
@@ -405,7 +507,7 @@ std::wstring CheckForAnimation(std::vector<std::wstring>& _vector, size_t _pos)
 	return L"";
 }
 
-std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector)
+std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector, std::wstring _filename)
 {
 	std::wstring COLOR = L"March22.WHITE_COLOUR, ";
 	std::vector<std::wstring> result;
@@ -535,6 +637,12 @@ std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector)
 			LABEL templabel;
 			templabel.name = splitString.at(1);
 			templabel.position = result.size() + 1; // lua starts at 1
+
+			LABEL_INDEX_OBJ tempindex;
+			tempindex.label_name = templabel.name;
+			tempindex.script_name = _filename;
+			LABEL_INDEX.push_back(tempindex);
+
 			LABELS.push_back(templabel);
 		}
 		else if (type == CHANGEBACKGROUND)
