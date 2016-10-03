@@ -57,7 +57,7 @@ while true do
 	end
 	if March22.BUTTON_TRIANGLE_PRESSED == 1 then
 		--System.exit()
-		jump_out ("A4");
+		jump_out ("A5");
 		--March22.SaveGame();
 	end
 	if March22.BUTTON_SQUARE_PRESSED == 1 then

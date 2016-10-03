@@ -117,7 +117,13 @@ end
 -- If the scene is not found in the loaded script then it loads the correct one first
 function iscene(_scriptlabel)
 	if LABEL_POSITIONS[_scriptlabel] == nil then
-		March22.ChangeScript(LABELINDEX[_scriptlabel]);
+		if LABELINDEX[_scriptlabel] == nil then
+			March22.CURRENT_LABEL_POSITION = March22.CURRENT_LABEL_POSITION + 1;
+			LABELS[March22.CURRENT_LABEL][March22.CURRENT_LABEL_POSITION]();
+			return;
+		else
+			March22.ChangeScript(LABELINDEX[_scriptlabel]);
+		end
 	end
 	
 	March22.CURRENTLINE = (LABEL_POSITIONS[_scriptlabel] + 1);

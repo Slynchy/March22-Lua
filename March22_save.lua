@@ -11,8 +11,8 @@ March22.GenerateSaveString = function()
 	
 	--active music track
 	--March22.ACTIVEMUSICTRACK
-	content = content.."March22.ACTIVEMUSICTRACK_NAME = \""..March22.ACTIVECHARACTER_NAME.."\";\n";
-	content = content.."Sound.play(March22.ACTIVEMUSICTRACK,LOOP);\n";
+	content = content.."March22.ACTIVEMUSICTRACK_NAME = \""..March22.ACTIVEMUSICTRACK_NAME.."\";\n";
+	content = content.."March22.PlayTrack(\""..March22.ACTIVEMUSICTRACK_NAME.."\");\n";
 	
 	content = content.."March22.CURRENTLINE = "..March22.CURRENTLINE..";\n";
 	content = content.."March22.ACTIVECHARACTER_NAME = \""..March22.ACTIVECHARACTER_NAME.."\";\n";
@@ -85,6 +85,7 @@ else
 	end
 	March22.LoadGame = function()
 		if System.doesFileExist("SaveData.lua") then
+			Sound.pause(March22.ACTIVEMUSICTRACK);
 			March22.UnloadLoadedAssets();
 			require("SaveData");
 		end

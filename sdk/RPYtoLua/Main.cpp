@@ -7,7 +7,7 @@
 
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 6
-#define VERSION_PATCH 0
+#define VERSION_PATCH 6
 
 #include <string>
 #include <iostream>
@@ -25,7 +25,10 @@ enum LUAFUNCTION {
 	CHANGELINE,
 	CLEAR_CHARACTER, 
 	NEW_CHARACTER,
-	NEW_DECISION
+	NEW_DECISION,
+	SHOW_NVL,
+	HIDE_NVL,
+	CLEAR_NVL
 };
 
 struct Character {
@@ -60,6 +63,7 @@ std::wstring CreateLuaFunction(LUAFUNCTION _function, std::wstring _param, bool 
 std::vector<Character> GetLoadedCharactersFromVector(std::vector<std::wstring>& _vector);
 std::wstring CreateDecision(size_t& pos, std::vector<std::wstring>& _vector);
 bool isCharacter(std::wstring _name);
+void RemoveSSFromEmotionName(std::vector<Character>& _array);
 
 struct LABEL
 {
@@ -310,7 +314,14 @@ int LoadTXTIntoVector(const char* _file, std::vector<std::wstring>& _vector)
 	std::wstring line;
 	while (std::getline(inputFile, line))
 	{
-		_vector.push_back(line);
+		if (line.size() >= 2 && line.at(0) == L'/' && line.at(1) == L'/')
+		{
+
+		}
+		else
+		{
+			_vector.push_back(line);
+		}
 	};
 
 	inputFile.close();
@@ -420,6 +431,15 @@ std::wstring CreateLuaFunction(LUAFUNCTION _function, std::wstring _param, bool 
 
 	switch (_function)
 	{
+		case SHOW_NVL:
+			result += std::wstring(L"March22.NVL_DISPLAY = 1;");
+			break;
+		case CLEAR_NVL:
+			result += std::wstring(L"print(\"anus\");");
+			break;
+		case HIDE_NVL:
+			result += std::wstring(L"March22.NVL_DISPLAY = 0;");
+			break;
 		case PLAY_SOUND:
 			result += std::wstring(L"Sound.play(LOADEDSFX[\"" + _param + L"\"], NO_LOOP);");
 			break;
@@ -514,12 +534,17 @@ std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector,
 
 	std::wstring* ACTIVE_THING;
 
-	enum TYPE {UNKNOWN, PLAYSOUND, PLAYMUSIC, CHANGEBACKGROUND, ADDSPRITE, CLEARSPRITE, SPEECH, NARRATIVE, LABEL_TYPE, NEW_DECISION};
+	enum TYPE {UNKNOWN, PLAYSOUND, PLAYMUSIC, CHANGEBACKGROUND, ADDSPRITE, CLEARSPRITE, SPEECH, NARRATIVE, LABEL_TYPE, NEW_DECISION, CLEAR_NVL, SHOW_NVL, HIDE_NVL};
 
 	for (size_t i = 0; i < _vector.size(); i++)
 	{
 		ACTIVE_THING = &_vector.at(i);
 		TYPE type = UNKNOWN;
+
+		myReplace(_vector.at(i), L" with dissolve", L"");
+		myReplace(_vector.at(i), L"\\n", L"");
+		myReplace(_vector.at(i), L"{w}", L"");
+
 		std::vector<std::wstring> splitString;
 		SplitString(_vector.at(i), splitString, ' ');
 		std::wstring tempStr = L"Line.new(";
@@ -570,6 +595,21 @@ std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector,
 			else if (splitString.at(0) == L"menu:")
 			{
 				type = NEW_DECISION;
+			}
+			else if (splitString.at(0) == L"nvl")
+			{
+				if (splitString.at(1) == L"show")
+				{
+					type = SHOW_NVL;
+				}
+				else if (splitString.at(1) == L"clear")
+				{
+					type = CLEAR_NVL;
+				}
+				else
+				{
+					type = HIDE_NVL;
+				}
 			}
 			
 			bool characterNameFound = false;
@@ -713,6 +753,21 @@ std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector,
 				tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::CHANGELINE, L"", true, true) + L"),\n");
 			}
 		}
+		else if (type == TYPE::CLEAR_NVL)
+		{
+			//nothing
+			tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::CLEAR_NVL, L"", true, true) + L"),\n");
+		}
+		else if (type == TYPE::HIDE_NVL)
+		{
+			//nothing
+			tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::HIDE_NVL, L"", true, true) + L"),\n");
+		}
+		else if (type == TYPE::SHOW_NVL)
+		{
+			//nothing
+			tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::SHOW_NVL, L"", true, true) + L"),\n");
+		}
 		else if (type == TYPE::SPEECH || type == TYPE::NARRATIVE)
 		{
 			//nothing
@@ -786,8 +841,21 @@ std::vector<Character> GetLoadedCharactersFromVector(std::vector<std::wstring>& 
 		}
 	};
 
+	RemoveSSFromEmotionName(result);
+
 	return result;
 };
+
+void RemoveSSFromEmotionName(std::vector<Character>& _array)
+{
+	for (auto chara = 0; chara < _array.size(); chara++)
+	{
+		for (auto emote = 0; emote < _array.at(chara).sprites.size(); emote++)
+		{
+			myReplace(_array.at(chara).sprites.at(emote), L"_ss", L"");
+		}
+	}
+}
 
 std::vector<std::wstring> GetLoadedMusicFromVector(std::vector<std::wstring>& _vector)
 {
@@ -891,8 +959,6 @@ std::vector<std::wstring> GetLoadedSFXFromVector(std::vector<std::wstring>& _vec
 
 std::vector<std::wstring> GetLoadedBackgroundsFromVector(std::vector<std::wstring>& _vector)
 {
-	//LOADEDBACKGROUNDS = {};
-	//LOADEDBACKGROUNDS["op_snowywoods"] = Graphics.loadImage("app0:/graphics/backgrounds/op_snowywoods.jpg");
 	std::vector<std::wstring> result;
 	std::vector<std::wstring> loadedBackgroundsTemp;
 

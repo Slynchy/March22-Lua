@@ -41,3 +41,5 @@ shizu
 hanako
 nurse
 kenji
+n
+centered

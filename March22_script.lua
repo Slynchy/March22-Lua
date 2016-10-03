@@ -6,6 +6,12 @@ March22.CURRENTLINE = 1;
 March22.CURRENT_LABEL = "imachine";
 March22.CURRENT_LABEL_POSITION = 1;
 
+-- switch for bigtext
+-- 0 = show normal textbox/do nothing
+-- 1 = show big textbox
+-- 2 = show centered text, no box
+March22.NVL_DISPLAY = 0; 
+
 -- Shorthand for ChangeLine(current+1)
 -- Deprecated; too scared to remove it
 function March22.NextLine()

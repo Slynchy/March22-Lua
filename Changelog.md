@@ -1,6 +1,10 @@
 #March22-Lua Changelog
 ##NOTE: I hardly ever remember what I add per version, so it may be inaccurate
 
+#### v0.6.7
+- Fixed bug/typo with active music in savegame
+- Long-text support from RPYtoLua
+
 #### v0.6.6
 - Added active music to savegame
 - Multiple script support
