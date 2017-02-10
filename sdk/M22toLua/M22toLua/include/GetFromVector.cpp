@@ -10,43 +10,30 @@ std::vector<std::wstring> GetLoadedBackgroundsFromVector(std::vector<std::wstrin
 
 	for (size_t i = 0; i < _vector.size(); i++)
 	{
-		std::wstring isScene = _vector.at(i).substr(0, 5);
-		if (isScene == L"scene")
+		std::vector<std::wstring> splitStr;
+		SplitString(_vector.at(i), splitStr, ' ');
+		if (splitStr.front() == L"DrawBackground")
 		{
-			std::vector<std::wstring> splitStr;
-			SplitString(_vector.at(i), splitStr, ' ');
 			std::wstring backgroundEntry = L"";
 
-			// March22 handles events and backgrounds the same way
-			if (splitStr.at(1) == L"ev" || splitStr.at(1) == L"bg")
+			bool alreadyLoaded = false;
+			for (size_t ch = 0; ch < loadedBackgroundsTemp.size(); ch++)
 			{
-				bool alreadyLoaded = false;
-				for (size_t ch = 0; ch < loadedBackgroundsTemp.size(); ch++)
+				if (loadedBackgroundsTemp.at(ch) == splitStr.at(1))
 				{
-					if (loadedBackgroundsTemp.at(ch) == splitStr.at(2))
-					{
-						alreadyLoaded = true;
-						break;
-					};
-				}
-				if (!alreadyLoaded)
-				{
-					backgroundEntry += L"LoadBackground(\"";
-					backgroundEntry += splitStr.at(2);
-					backgroundEntry += L"\");\n";
-					result.push_back(backgroundEntry);
-					loadedBackgroundsTemp.push_back(splitStr.at(2));
+					alreadyLoaded = true;
+					break;
 				};
 			}
-			else if (splitStr.at(1) == L"bl") // black
+			if (!alreadyLoaded)
 			{
-
-			}
-			else if (splitStr.at(1) == L"wh") // white
-			{
-
+				backgroundEntry += L"LoadBackground(\"";
+				backgroundEntry += splitStr.at(1);
+				backgroundEntry += L"\");\n";
+				result.push_back(backgroundEntry);
+				loadedBackgroundsTemp.push_back(splitStr.at(1));
 			};
-		};
+		}
 	}
 
 	return result;
@@ -65,37 +52,31 @@ std::vector<std::wstring> GetLoadedSFXFromVector(std::vector<std::wstring>& _vec
 		}
 		else
 		{
-			std::wstring isScene = _vector.at(i).substr(0, 4);
-			if (isScene == L"play")
+			std::vector<std::wstring> splitStr;
+			SplitString(_vector.at(i), splitStr, ' ');
+			if (splitStr.front() == L"PlaySound")
 			{
-				std::vector<std::wstring> splitStr;
-				SplitString(_vector.at(i), splitStr, ' ');
 				std::wstring sfxEntry = L"";
-
-				// March22 handles events and backgrounds the same way
-				if (splitStr.at(1) == L"sound")
+				bool alreadyLoaded = false;
+				for (size_t ch = 0; ch < loadedSFXTemp.size(); ch++)
 				{
-					bool alreadyLoaded = false;
-					for (size_t ch = 0; ch < loadedSFXTemp.size(); ch++)
+					if (loadedSFXTemp.at(ch) == splitStr.at(1))
 					{
-						if (loadedSFXTemp.at(ch) == splitStr.at(2))
-						{
-							alreadyLoaded = true;
-							break;
-						};
-					}
-					if (!alreadyLoaded)
-					{
-						sfxEntry += L"LOADEDSFX[\"";
-						sfxEntry += splitStr.at(2);
-						sfxEntry += L"\"] = Sound.openOgg(\"app0:/sfx/";
-						sfxEntry += splitStr.at(2);
-						sfxEntry += L".ogg\");\n";
-						result.push_back(sfxEntry);
-						loadedSFXTemp.push_back(splitStr.at(2));
+						alreadyLoaded = true;
+						break;
 					};
 				}
-			};
+				if (!alreadyLoaded)
+				{
+					sfxEntry += L"LOADEDSFX[\"";
+					sfxEntry += splitStr.at(1);
+					sfxEntry += L"\"] = Sound.openOgg(\"app0:/sfx/";
+					sfxEntry += splitStr.at(1);
+					sfxEntry += L".ogg\");\n";
+					result.push_back(sfxEntry);
+					loadedSFXTemp.push_back(splitStr.at(1));
+				};
+			}
 		};
 	}
 
@@ -115,37 +96,32 @@ std::vector<std::wstring> GetLoadedMusicFromVector(std::vector<std::wstring>& _v
 		}
 		else
 		{
-			std::wstring isScene = _vector.at(i).substr(0, 4);
-			if (isScene == L"play")
+			std::vector<std::wstring> splitStr;
+			SplitString(_vector.at(i), splitStr, ' ');
+			if (splitStr.front() == L"PlayMusic")
 			{
-				std::vector<std::wstring> splitStr;
-				SplitString(_vector.at(i), splitStr, ' ');
 				std::wstring sfxEntry = L"";
 
-				// March22 handles events and backgrounds the same way
-				if (splitStr.at(1) == L"music")
+				bool alreadyLoaded = false;
+				for (size_t ch = 0; ch < loadedMUSTemp.size(); ch++)
 				{
-					bool alreadyLoaded = false;
-					for (size_t ch = 0; ch < loadedMUSTemp.size(); ch++)
+					if (loadedMUSTemp.at(ch) == splitStr.at(1))
 					{
-						if (loadedMUSTemp.at(ch) == splitStr.at(2))
-						{
-							alreadyLoaded = true;
-							break;
-						};
-					}
-					if (!alreadyLoaded)
-					{
-						sfxEntry += L"LOADEDMUSIC[\"";
-						sfxEntry += splitStr.at(2);
-						sfxEntry += L"\"] = Sound.openOgg(\"app0:/music/";
-						sfxEntry += splitStr.at(2);
-						sfxEntry += L".ogg\");\n";
-						result.push_back(sfxEntry);
-						loadedMUSTemp.push_back(splitStr.at(2));
+						alreadyLoaded = true;
+						break;
 					};
 				}
-			};
+				if (!alreadyLoaded)
+				{
+					sfxEntry += L"LOADEDMUSIC[\"";
+					sfxEntry += splitStr.at(1);
+					sfxEntry += L"\"] = Sound.openOgg(\"app0:/music/";
+					sfxEntry += splitStr.at(1);
+					sfxEntry += L".ogg\");\n";
+					result.push_back(sfxEntry);
+					loadedMUSTemp.push_back(splitStr.at(1));
+				};
+			}
 		};
 	}
 
@@ -234,7 +210,7 @@ std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector,
 
 	std::wstring* ACTIVE_THING;
 
-	enum TYPE { UNKNOWN, PLAYSOUND, PLAYMUSIC, CHANGEBACKGROUND, ADDSPRITE, CLEARSPRITE, SPEECH, NARRATIVE, LABEL_TYPE, NEW_DECISION, CLEAR_NVL, SHOW_NVL, HIDE_NVL };
+	enum TYPE { UNKNOWN, PLAYSOUND, FADETOBLACKFANCY, PLAYMUSIC, CHANGEBACKGROUND, ADDSPRITE, CLEARSPRITE, COMMENT,SPEECH, NARRATIVE, LABEL_TYPE, NEW_DECISION, SET_ACTV_TRANS, CLEAR_NVL, DARKEN_SCREEN, SHOW_NVL, HIDE_NVL, NEW_PAGE };
 
 	for (size_t i = 0; i < _vector.size(); i++)
 	{
@@ -249,6 +225,26 @@ std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector,
 		if (splitString.at(0) == L"PlayMusic")
 		{
 			type = PLAYMUSIC;
+		}
+		else if (splitString.at(0) == L"NewPage")
+		{
+			type = NEW_PAGE;
+		}
+		else if (splitString.at(0) == L"FadeToBlackFancy")
+		{
+			type = FADETOBLACKFANCY;
+		}
+		else if (splitString.at(0).size() > 1 && (splitString.at(0).at(0) == L'/' && splitString.at(0).at(1) == L'/'))
+		{
+			type = COMMENT;
+		}
+		else if (splitString.at(0) == L"DarkenScreen")
+		{
+			type = DARKEN_SCREEN;
+		}
+		else if (splitString.at(0) == L"SetActiveTransition")
+		{
+			type = SET_ACTV_TRANS;
 		}
 		else if (splitString.at(0) == L"PlaySting")
 		{
@@ -266,7 +262,7 @@ std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector,
 		{
 			type = CHANGEBACKGROUND;
 		}
-		else if (splitString.at(0).at(0) == L'-' && splitString.at(0).at(1) == L'-')
+		else if (splitString.at(0).size() > 2 && (splitString.at(0).at(0) == L'-' && splitString.at(0).at(1) == L'-'))
 		{
 			type = LABEL_TYPE;
 		}
@@ -296,6 +292,8 @@ std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector,
 		tempStr += L"\"\"";
 		tempStr += L", ";
 		tempStr += COLOR;
+
+
 		if (type == NARRATIVE)
 		{
 			tempStr += L"\"";
@@ -427,10 +425,35 @@ std::vector<std::wstring> GetLinesFromVector(std::vector<std::wstring>& _vector,
 			//nothing
 			tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::CLEAR_NVL, L"", true, true) + L"),\n");
 		}
+		else if (type == TYPE::NEW_PAGE)
+		{
+			//nothing
+			tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::NEW_PAGE, L"", true, true) + L"),\n");
+		}
+		else if (type == TYPE::DARKEN_SCREEN)
+		{
+			//nothing
+			tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::COMMENT, L"", true, true) + L"),\n");
+		}
+		else if (type == TYPE::COMMENT)
+		{
+			//nothing
+			tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::COMMENT, L"", true, true) + L"),\n");
+		}
+		else if (type == TYPE::SET_ACTV_TRANS)
+		{
+			//nothing
+			tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::COMMENT, L"", true, true) + L"),\n");
+		}
 		else if (type == TYPE::HIDE_NVL)
 		{
 			//nothing
 			tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::HIDE_NVL, L"", true, true) + L"),\n");
+		}
+		else if (type == TYPE::FADETOBLACKFANCY)
+		{
+			//nothing
+			tempStr += (L", " + CreateLuaFunction(LUAFUNCTION::COMMENT, L"", true, true) + L"),\n");
 		}
 		else if (type == TYPE::SHOW_NVL)
 		{

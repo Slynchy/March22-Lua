@@ -59,7 +59,6 @@ int main(int argc, wchar_t* argv[])
 			MUSIC = GetLoadedMusicFromVector(SCRIPT);
 			LINES = GetLinesFromVector(SCRIPT, filename);
 
-
 			WriteCompiledScript(filename, BACKGROUNDS, LINES, SFX, CHARACTERS, MUSIC);
 		}
 		WriteLabelIndexFile();

@@ -1,1 +1,1 @@
-./scripts/test2.m22
+./scripts/test.m22

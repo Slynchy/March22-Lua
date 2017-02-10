@@ -17,8 +17,20 @@ std::wstring CreateLuaFunction(LUAFUNCTION _function, std::wstring _param, bool 
 	case SHOW_NVL:
 		result += std::wstring(L"March22.NVL_DISPLAY = 1;");
 		break;
+	case DARKEN_SCREEN:
+		result += std::wstring(L"--[[ null op]]");
+		break;
+	case SET_ACTV_TRANS:
+		result += std::wstring(L"--[[ null op]]");
+		break;
+	case COMMENT:
+		result += std::wstring(L"--[[ null op ]]");
+		break;
 	case CLEAR_NVL:
 		result += std::wstring(L"print(\"anus\");");
+		break;
+	case NEW_PAGE:
+		result += std::wstring(L"March22.NewPage();");
 		break;
 	case HIDE_NVL:
 		result += std::wstring(L"March22.NVL_DISPLAY = 0;");
