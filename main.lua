@@ -58,13 +58,7 @@ Screen.flip = function()
 end
 
 System.exit = function()
-	--love.event.quit( )
-	-- the above doesn't work so we're going to cheat.
-	-- We're going to call this function when ESC is pressed, and then cause an error
-	-- the error will then process the escape which will skip the error log and close the program
-	this_is_a_string = "told you";
-	this_is_an_integer = 1337;
-	this_is_a_string = this_is_a_string + this_is_an_integer;
+	love.quit();
 end
 
 UpdateLoveEvents = function()
@@ -77,7 +71,7 @@ end
 
 Screen.clear = function()
 	love.graphics.clear()
-	love.event.pump()
+	--love.event.pump()
 	--UpdateLoveEvents( )
 end
 
@@ -162,6 +156,16 @@ Graphics.drawImage = function(x, y, image, color)
 	love.graphics.draw( image, x, y);
 end
 
+Graphics.drawRotateImage = function(x, y, image, rotation, color, offsetX, offsetY)
+	if color == nil then
+		color = Color.new(255,255,255,255)
+	else
+		--
+	end
+	love.graphics.setColor(color.r,color.g,color.b,color.a);
+	love.graphics.draw( image, x, y, rotation, 1, 1, offsetX, offsetY);
+end
+
 Graphics.getImageWidth = function(image)
 
 	return image:getWidth();
@@ -187,7 +191,6 @@ Font.load = function(filename)
 end
 
 Font.print = function(font, x, y, text, color)
-
 	love.graphics.setColor(color.r,color.g,color.b,color.a);
 	love.graphics.setFont( font );
 	love.graphics.print(text, x, y);
@@ -217,6 +220,11 @@ end
 
 function love.conf(t)
     t.console = true;
+	t.window.title = "March22";
+	t.window.resizable = true;
+	t.window.vsync=true;
+	t.window.width = 960;
+	t.window.height = 544;
 end
 
 dofile = function(param)
@@ -228,14 +236,12 @@ dofile = function(param)
 end
 
 function love.quit()
-	love.window.close( )
-    return true
+	love.event.push('quit')
+	--love.window.close( )
+    --return true
 end
 
 function love.load()
-	love.window.setMode( 960, 544, {resizable=false, vsync=true} )
 	love.graphics.setColor(255,255,255,255);
-
-	love.window.setTitle("test")
 	require("index")
 end

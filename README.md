@@ -1,13 +1,16 @@
 # March22-Lua
-A port of March22 Visual Novel engine to Lua for use with lpp-vita
+A port of March22 Interactive Novel engine to Lua for use with the LÖVE framework.
 
 # How to use
-Works with lpp-vita right out of the box. To use PC function, download the latest LÖVE binaries for your platform, copy the contents of PC_FILES to project root (same folder as index.lua), and run with LÖVE.
+Works with LÖVE out of the box. Clone the repo and drag the folder onto the love2D executable.
 
-Devs should write your scripts in Ren'Py format (look at Katawa Shoujo for an example) and process with RPYtoLua (written in pure C++11; but have been informed that Linux hates codecvt, so keep it to VS2015 or equivalent!) to produce script files. A barebones project will be available soon for kickstarting development.
+If you are porting: process the scripts with RPYtoLua (uses <codecvt> so doesn't compile on Linux). Doesn't like indentation. 
+
+If you are developing: write your scripts in the [March22 format](https://raw.githubusercontent.com/Slynchy/March22/master/scripts/START_SCRIPT.txt) and refer to [documentation](https://github.com/Slynchy/March22/blob/master/m22_DESIGN_DOCUMENT.md). Compile using M22toLua.
+
+If you want Visual Novel or PSVita support, clone the appropriate branch.
 
 #Credits
-- lpp-vita by Rinnegatamante https://github.com/Rinnegatamante/lpp-vita
 - LÖVE (love2d) https://love2d.org
-- Four Leaf Studios http://www.katawa-shoujo.com
 - Ren'Py https://github.com/renpy/renpy
+- lpp-vita by Rinnegatamante https://github.com/Rinnegatamante/lpp-vita

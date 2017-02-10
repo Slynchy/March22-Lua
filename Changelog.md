@@ -1,5 +1,16 @@
 #March22-Lua Changelog
-##NOTE: I hardly ever remember what I add per version, so it may be inaccurate
+##NOTE: I hardly ever remember what I add per version, so it may be 
+
+#### v0.7.0
+- Dropped lpp-vita support in favour of LÖVE 
+	* Can still fork the other branch for PSVita/Visual Novels
+- Converted to Interactive Novel engine
+- M22toLua added
+	* Converts m22 script 
+	* Refer to [M22 documentation](https://github.com/Slynchy/March22/blob/master/Changelog.md)
+	* Better and more reliable for devs than RPY script
+		+ RPYtoLua should be used for porting, M22 for developing
+- NOTE: Some code in the 'engine' is built for purpose
 
 #### v0.6.7
 - Fixed bug/typo with active music in savegame

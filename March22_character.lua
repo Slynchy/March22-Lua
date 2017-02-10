@@ -30,7 +30,8 @@ end
    -- _charname = characters name in March22.CHARACTERS
    -- _emotion = emotion of character from March22.CHARACTERS
 function March22.AddCharacterToActive(_x, _charname, _emotion, _anim, _animfunc, _speed)
-    local y = Graphics.getImageHeight(March22.CHARACTERS[_charname].sprites[_emotion]);
+	return;
+    --[[local y = Graphics.getImageHeight(March22.CHARACTERS[_charname].sprites[_emotion]);
     y = 544 - y;
     
     local x = Graphics.getImageWidth(March22.CHARACTERS[_charname].sprites[_emotion]);
@@ -64,5 +65,5 @@ function March22.AddCharacterToActive(_x, _charname, _emotion, _anim, _animfunc,
     else 
       table.insert(March22.ACTIVECHARACTERS, CharacterSprite.new ( x, y, _charname, _emotion,_anim,_speed,_animfunc));
     end
-    
+    --]]
 end

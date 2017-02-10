@@ -5,6 +5,7 @@ March22.CURRENTLINE = 1;
 -- Label machine always starts at imachine
 March22.CURRENT_LABEL = "imachine";
 March22.CURRENT_LABEL_POSITION = 1;
+doNewLine = true;
 
 -- switch for bigtext
 -- 0 = show normal textbox/do nothing
@@ -46,6 +47,14 @@ function March22.ChangeLine(_number)
 			ACTIVE_SCRIPT[March22.CURRENTLINE].func(); 
 		end;
 	end
+end
+
+function March22.NewPage()
+	March22.currentPage = "" 
+	March22.currentPageTypewriter = "";
+	March22.TypeWriterFrame = 0
+	March22.currentPage = "";
+	doNewLine = false;
 end
 
 -- Garbage collector for lpp-vita
@@ -93,6 +102,7 @@ function March22.UnloadLoadedAssets()
 	March22.ClearCharacter();
 	
 	collectgarbage("collect")
+	collectgarbage()
 end
 
 -- Changes script to the specified one

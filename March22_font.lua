@@ -2,8 +2,12 @@
 -- init the typewriter frame variable
 March22.TypeWriterFrame = 0.0;
 
+March22.currentPageTypewriter = "";
+
 -- boolean for whether line is done typewriting
 March22.TypeWriterLineComplete = false;
+
+mainFont = love.graphics.newFont("graphics/font.ttf", 20);
 
 -- Gets the size of the char (to tell if UTF-8 or not)
 function chsize(char)
@@ -124,19 +128,22 @@ end
 
 -- Draws substring of wrapped text with typewriter effect
 function March22.DrawTypeWriterEffect(_font, _x, _y, _text, _color)
-  March22.TypeWriterFrame = March22.TypeWriterFrame + 0.5;
-  tempint = string.len(_text);
-  tempText = "";
-  if March22.TypeWriterFrame >= tempint then
-    March22.TypeWriterFrame = tempint;
-    tempText = _text;
-	March22.TypeWriterLineComplete = true;
-  else
-	March22.TypeWriterLineComplete = false;
-	tempText = utf8sub(_text, 0, math.ceil(March22.TypeWriterFrame)); -- From http://wowprogramming.com/snippets/UTF-8_aware_stringsub_7
-  end
-  
-  March22.DrawWrappedText(_font, _x, _y, tempText, _color);
+	
+	local tempint = string.len(March22.currentPage);
+	local tempint2 = string.len(March22.currentPageTypewriter);
+	
+	if tempint2 < tempint then
+		March22.TypeWriterFrame = March22.TypeWriterFrame + 0.4;
+		March22.TypeWriterLineComplete = false;
+		March22.currentPageTypewriter = utf8sub(March22.currentPage, 0, math.ceil(March22.TypeWriterFrame));
+	else 
+		March22.TypeWriterLineComplete = true;
+	end
+	
+	love.graphics.setFont(mainFont);
+	love.graphics.printf( March22.currentPageTypewriter, _x, _y, 885, "left" )
+
+	--March22.DrawWrappedText(_font, _x, _y, tempText, _color);
 end
 
 

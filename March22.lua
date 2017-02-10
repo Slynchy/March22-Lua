@@ -1,20 +1,21 @@
 --[[
 	March22-Lua
-		Coded in Lua to be used by lpp-vita
+		Coded in Lua to be used by lpp-vita/love2d
 		Code covered by MIT licensing
 	By Sam 'Slynch' Lynch
 	
-	Katawa Shoujo is property of 4Leaf Studios and covered by CC3.0
 	lpp-vita is an open-source project by rinnegatamante
 --]]
 
 --Namespace
 March22 = {};
-March22.version = {0, 6, 6}; -- Major, minor, revision
+March22.version = {0, 7, 0}; -- Major, minor, revision
 print("Loading March22 v"..March22.version[1]..".".. March22.version[2] ..".".. March22.version[3]);
 
+March22.currentPage = "";
+
 --CONSTANTS
-maxChar = 88; -- Max number of characters to a line of text
+maxChar = 106; -- Max number of characters to a line of text
 FONTSIZE = 25; -- Size of text fonts
 March22.TEXTBOX = Graphics.loadImage("app0:/graphics/textbox.png"); -- Textbox graphic (doesn't change so constant)
 March22.TEXTBOX_NARRATIVE = Graphics.loadImage("app0:/graphics/textbox_narrative.png"); -- Textbox graphic (doesn't change so constant)
@@ -56,12 +57,12 @@ dofile("app0:/March22_character.lua");
 dofile("app0:/March22_labels.lua");
 
 -- Load the first script file; this will be eventually called "index" or "entrypoint.lua"
-dofile("app0:/scripts/script-a1-monday.lua");
+--dofile("app0:/scripts/script-a1-monday.lua");
 
 -- Init the active variables with the first line of the script
-March22.ACTIVECHARACTER_NAME = ACTIVE_SCRIPT[1].speaker; 
-March22.ACTIVESPEECH = ACTIVE_SCRIPT[1].content;
-March22.ACTIVECHARACTER_COLOR = ACTIVE_SCRIPT[1].color;
+--March22.ACTIVECHARACTER_NAME = ACTIVE_SCRIPT[1].speaker; 
+--March22.ACTIVESPEECH = ACTIVE_SCRIPT[1].content;
+--March22.ACTIVECHARACTER_COLOR = ACTIVE_SCRIPT[1].color;
 
 --Load the remaining includes
 dofile("app0:/March22_background.lua");
@@ -90,14 +91,14 @@ function March22.Render()
 	end
 	
 	-- If allowed, draw the text box and text
-	if March22.DRAW_TEXTBOX == true then
+	--if March22.DRAW_TEXTBOX == true then
 		if March22.ACTIVECHARACTER_NAME == "" then
 			Graphics.drawImage(0, 0, March22.TEXTBOX_NARRATIVE);
 		else
 			Graphics.drawImage(0, 0, March22.TEXTBOX);
 		end
-		Font.print(March22.FONT_BOLD, 18, 370, March22.ACTIVECHARACTER_NAME, March22.ACTIVECHARACTER_COLOR);
-		March22.DrawTypeWriterEffect(March22.FONT, 42, 424, March22.ACTIVESPEECH, Color.new(255, 255, 255))
-	end
+		--Font.print(March22.FONT_BOLD, 18, 370, March22.ACTIVECHARACTER_NAME, March22.ACTIVECHARACTER_COLOR);
+		March22.DrawTypeWriterEffect(March22.FONT, 42, 42, March22.currentPage, Color.new(255, 255, 255))
+	--end
 	
 end
